@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>插画小游戏屋 V2</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@400;700&family=Noto+Sans+SC:wght@400;600;700&display=swap");
+
+    :root {
+      --bg-a: #fff7ec;
+      --bg-b: #f6fff9;
+      --bg-c: #eef5ff;
+      --text: #1f2e3d;
+      --muted: #627487;
+      --primary: #1fbf9f;
+      --accent: #ff9f43;
+      --info: #4d7cfe;
+      --danger: #f45b69;
+      --surface: rgba(255, 255, 255, 0.88);
+      --border: rgba(52, 91, 134, 0.14);
+      --shadow: 0 12px 34px rgba(70, 98, 130, 0.16);
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --board-gap: 10px;
+      --ttt-cell-size: 110px;
+      --memory-cell-size: 74px;
+      --speed-pad-height: clamp(260px, 46vh, 430px);
+      --react-pad-height: clamp(260px, 46vh, 430px);
+      --balloon-field-height: clamp(300px, 52vh, 500px);
+      --game-shell-padding: 18px;
+      --button-min-height: 44px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Noto Sans SC", "LXGW WenKai", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 9%, rgba(80, 176, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 88% 5%, rgba(31, 191, 159, 0.18), transparent 28%),
+        linear-gradient(145deg, var(--bg-a), var(--bg-b) 48%, var(--bg-c));
+      overflow-x: hidden;
+    }
+
+    body {
+      padding: 16px;
+      position: relative;
+    }
+
+    .bg-shape {
+      position: fixed;
+      border-radius: 999px;
+      filter: blur(2px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .shape-a {
+      width: 260px;
+      height: 260px;
+      left: -80px;
+      top: -90px;
+      background: rgba(31, 191, 159, 0.2);
+    }
+
+    .shape-b {
+      width: 300px;
+      height: 300px;
+      right: -120px;
+      bottom: -120px;
+      background: rgba(255, 159, 67, 0.2);
+    }
+
+    .scene {
+      width: min(1140px, 100%);
+      margin: 0 auto;
+      animation: fade-slide 0.2s ease-out;
+    }
+
+    .scene[hidden] {
+      display: none !important;
+    }
+
+    .home-shell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      backdrop-filter: blur(6px);
+    }
+
+    .home-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .home-title h1 {
+      margin: 0;
+      font-family: "LXGW WenKai", "Noto Sans SC", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+    }
+
+    .home-title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .entry-card {
+      border: 1px solid rgba(38, 88, 132, 0.15);
+      border-radius: var(--radius-md);
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(245, 250, 255, 0.92));
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+      min-height: 155px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .entry-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(92, 122, 152, 0.2);
+    }
+
+    .entry-card .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(31, 191, 159, 0.14);
+      color: #168770;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .entry-card h3 {
+      margin: 0;
+      font-size: 1.18rem;
+      color: #2d4260;
+    }
+
+    .entry-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.35;
+    }
+
+    .entry-card.accent-a .tag {
+      background: rgba(31, 191, 159, 0.16);
+      color: #127663;
+    }
+
+    .entry-card.accent-b .tag {
+      background: rgba(77, 124, 254, 0.16);
+      color: #315ad3;
+    }
+
+    .entry-card.accent-c .tag {
+      background: rgba(255, 159, 67, 0.2);
+      color: #c26910;
+    }
+
+    .game-shell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: var(--game-shell-padding);
+      min-height: calc(100vh - 32px);
+    }
+
+    .scene-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .scene-head h2 {
+      margin: 0;
+      font-family: "LXGW WenKai", "Noto Sans SC", sans-serif;
+      font-size: clamp(1.5rem, 2.6vw, 2rem);
+      color: #2b3f5e;
+    }
+
+    .scene-desc {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    .status {
+      min-height: 22px;
+      font-size: 0.92rem;
+      color: #415b78;
+      margin: 10px 0 0;
+    }
+
+    .chip-row,
+    .control-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(58, 98, 141, 0.16);
+      background: rgba(255, 255, 255, 0.86);
+      font-size: 0.9rem;
+      color: #3f5772;
+    }
+
+    .chip strong {
+      color: #23446a;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(50, 92, 133, 0.2);
+      background: linear-gradient(180deg, #ffffff, #f2f8ff);
+      color: #2b425d;
+      border-radius: var(--radius-sm);
+      min-height: var(--button-min-height);
+      padding: 9px 13px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+      box-shadow: 0 3px 8px rgba(78, 106, 136, 0.12);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.52;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      border-color: rgba(23, 133, 111, 0.3);
+      background: linear-gradient(180deg, #e9fff8, #d2f9ec);
+      color: #0f6a56;
+    }
+
+    .ghost {
+      background: linear-gradient(180deg, #ffffff, #f7f7f7);
+      color: #415b78;
+    }
+
+    .warn {
+      border-color: rgba(193, 108, 15, 0.3);
+      background: linear-gradient(180deg, #fff3e6, #ffe1bf);
+      color: #9a5708;
+    }
+
+    .back-btn {
+      border-color: rgba(77, 124, 254, 0.3);
+      background: linear-gradient(180deg, #eff3ff, #dce6ff);
+      color: #3557c8;
+    }
+
+    .danger {
+      border-color: rgba(175, 51, 69, 0.35);
+      background: linear-gradient(180deg, #ffecef, #ffd9df);
+      color: #a33045;
+    }
+    .speed-pad {
+      position: relative;
+      margin: 12px auto 0;
+      width: min(980px, 100%);
+      height: var(--speed-pad-height);
+      border-radius: 26px;
+      border: 1px solid rgba(201, 119, 31, 0.36);
+      background:
+        radial-gradient(circle at 25% 18%, rgba(255, 245, 198, 0.72), transparent 34%),
+        linear-gradient(165deg, #ffe0b5, #ffbb6f 52%, #ff9f43);
+      color: #704003;
+      font-size: clamp(1rem, 2.2vw, 1.26rem);
+      box-shadow: 0 10px 20px rgba(241, 168, 89, 0.35);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .speed-pad .hint {
+      position: relative;
+      z-index: 1;
+      font-weight: 700;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    .speed-ripple {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 2px solid rgba(255, 255, 255, 0.82);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: speed-ripple 0.32s ease-out forwards;
+    }
+
+    .duel-wrap {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .duel-lane {
+      border-radius: var(--radius-md);
+      padding: 12px;
+      border: 1px solid rgba(53, 92, 126, 0.16);
+      background: rgba(255, 255, 255, 0.78);
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .duel-lane h3 {
+      margin: 0;
+      color: #304867;
+      font-size: 1.05rem;
+    }
+
+    .duel-target {
+      width: min(145px, 58vw);
+      height: min(145px, 58vw);
+      border-radius: 999px;
+      font-size: 1rem;
+    }
+
+    .duel-target.p1 {
+      background: radial-gradient(circle at 35% 30%, #97d6ff, #5aa8ff);
+      color: #13375f;
+      border-color: rgba(38, 104, 173, 0.35);
+    }
+
+    .duel-target.p2 {
+      background: radial-gradient(circle at 35% 30%, #a6f2d2, #50d9a7);
+      color: #0f5a43;
+      border-color: rgba(23, 127, 93, 0.32);
+    }
+
+    .ttt-board {
+      display: grid;
+      grid-template-columns: repeat(3, var(--ttt-cell-size));
+      gap: var(--board-gap);
+      width: fit-content;
+      max-width: 100%;
+      margin: 10px auto 0;
+      touch-action: manipulation;
+    }
+
+    .ttt-cell {
+      width: var(--ttt-cell-size);
+      height: var(--ttt-cell-size);
+      border-radius: 16px;
+      font-size: clamp(1.6rem, calc(var(--ttt-cell-size) * 0.34), 2.4rem);
+      font-weight: 700;
+      border: 1px solid rgba(56, 95, 138, 0.22);
+      background: linear-gradient(180deg, #ffffff, #edf6ff);
+      color: #35527a;
+    }
+
+    .react-pad {
+      margin: 10px auto 0;
+      width: min(980px, 100%);
+      height: var(--react-pad-height);
+      border-radius: 24px;
+      border: 1px solid rgba(54, 101, 140, 0.22);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #304867;
+      font-weight: 700;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      user-select: none;
+      touch-action: manipulation;
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .react-pad.is-waiting {
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.95), rgba(236, 245, 255, 0.92));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .react-pad.is-live {
+      background:
+        radial-gradient(circle at 28% 18%, rgba(255, 254, 218, 0.72), transparent 34%),
+        linear-gradient(165deg, #dffff7, #87efd6 56%, #3fd0ac);
+      border-color: rgba(18, 130, 101, 0.34);
+      color: #0d5f4a;
+      box-shadow: 0 14px 24px rgba(33, 164, 130, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .react-pad.is-miss {
+      background: linear-gradient(170deg, #ffeef0, #ffd7dd 60%, #ffc2cc);
+      border-color: rgba(173, 58, 81, 0.3);
+      color: #8a2b40;
+    }
+
+    .react-pad .signal-text {
+      padding: 10px;
+      line-height: 1.35;
+    }
+
+    .balloon-field {
+      margin: 10px auto 0;
+      width: min(980px, 100%);
+      height: var(--balloon-field-height);
+      border-radius: 24px;
+      border: 1px solid rgba(53, 98, 136, 0.2);
+      background:
+        radial-gradient(circle at 20% 16%, rgba(232, 246, 255, 0.7), transparent 35%),
+        linear-gradient(180deg, #f7fdff, #eaf6ff);
+      position: relative;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .balloon {
+      position: absolute;
+      border: 1px solid rgba(199, 91, 65, 0.32);
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 24%, #ffe3dd, #ff9f88 60%, #ff7f63);
+      color: #7b2a1a;
+      display: grid;
+      place-items: center;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 8px 14px rgba(188, 94, 78, 0.26);
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      animation: balloon-float 1.25s ease-in-out infinite alternate;
+    }
+
+    .balloon:focus-visible {
+      outline: 3px solid rgba(77, 124, 254, 0.46);
+      outline-offset: 2px;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      width: 26%;
+      height: 26%;
+      left: 20%;
+      top: 18%;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.45);
+      pointer-events: none;
+    }
+
+    .result-panel {
+      margin-top: 12px;
+      border: 1px solid rgba(54, 98, 140, 0.2);
+      border-radius: 16px;
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.93), rgba(241, 250, 255, 0.9));
+      padding: 12px;
+    }
+
+    .result-panel h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #2f4868;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(90px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .result-item {
+      border-radius: 12px;
+      border: 1px solid rgba(56, 98, 139, 0.15);
+      background: rgba(255, 255, 255, 0.76);
+      padding: 8px;
+      font-size: 0.88rem;
+      color: #516780;
+    }
+
+    .result-item strong {
+      display: block;
+      margin-top: 3px;
+      color: #243e62;
+      font-size: 1.05rem;
+    }
+
+    .memory-board {
+      margin: 10px auto 0;
+      display: grid;
+      grid-template-columns: repeat(6, var(--memory-cell-size));
+      gap: var(--board-gap);
+      width: fit-content;
+      max-width: 100%;
+      touch-action: manipulation;
+    }
+
+    .memory-tile {
+      width: var(--memory-cell-size);
+      height: var(--memory-cell-size);
+      border-radius: 12px;
+      border: 1px solid rgba(55, 93, 134, 0.2);
+      background: linear-gradient(180deg, #ffffff, #f4f8ff);
+      color: #2f4867;
+      font-size: clamp(0.9rem, calc(var(--memory-cell-size) * 0.34), 1.5rem);
+      font-weight: 700;
+    }
+
+    .memory-tile.open {
+      outline: 3px solid rgba(77, 124, 254, 0.45);
+      outline-offset: 1px;
+      background: #e7efff;
+    }
+
+    .memory-tile.hidden {
+      border-style: dashed;
+      background: rgba(218, 230, 245, 0.5);
+      color: transparent;
+      cursor: default;
+    }
+
+    .memory-tile.matched {
+      background: linear-gradient(180deg, #dfffe9, #bff6d6);
+      color: #206a46;
+      border-color: rgba(29, 140, 90, 0.28);
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    @keyframes fade-slide {
+      from {
+        opacity: 0;
+        transform: translateY(7px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes speed-ripple {
+      from {
+        opacity: 0.85;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(6.8);
+      }
+    }
+
+    @keyframes balloon-float {
+      from {
+        transform: translate(-50%, -50%) translateY(0);
+      }
+      to {
+        transform: translate(-50%, -50%) translateY(-8px);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .entry-grid {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 10px;
+      }
+
+      .home-shell,
+      .game-shell {
+        border-radius: 18px;
+      }
+
+      .home-shell {
+        padding: 14px;
+      }
+
+      .entry-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .duel-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-shape shape-a"></div>
+  <div class="bg-shape shape-b"></div>
+
+  <section id="scene-home" class="scene">
+    <div class="home-shell">
+      <div class="home-header">
+        <div class="home-title">
+          <h1>插画小游戏屋</h1>
+          <p>点击卡片进入全屏游戏页。每次只玩一款，不再同页混在一起。</p>
+        </div>
+        <div class="top-actions">
+          <button id="sound-toggle" type="button" class="primary">音效：开</button>
+          <button id="settings-reset" type="button" class="danger">恢复默认设置</button>
+        </div>
+      </div>
+
+      <div class="entry-grid">
+        <button class="entry-card accent-a" data-scene="speed" type="button">
+          <span class="tag">单人</span>
+          <h3>手速测试</h3>
+          <p>10 秒点击冲刺，结算本局 CPS。</p>
+        </button>
+        <button class="entry-card accent-b" data-scene="duel" type="button">
+          <span class="tag">双人</span>
+          <h3>手速对决</h3>
+          <p>左右分区同屏开点，8 秒决胜。</p>
+        </button>
+        <button class="entry-card accent-c" data-scene="ttt" type="button">
+          <span class="tag">双人</span>
+          <h3>井字棋</h3>
+          <p>经典 3x3 轮流落子，先连成线获胜。</p>
+        </button>
+        <button class="entry-card accent-b" data-scene="react" type="button">
+          <span class="tag">单人</span>
+          <h3>反应力闪击</h3>
+          <p>60 秒持续模式，亮灯即点，乱点会扣分。</p>
+        </button>
+        <button class="entry-card accent-a" data-scene="balloon" type="button">
+          <span class="tag">单人</span>
+          <h3>打气球</h3>
+          <p>60 秒随机弹出，快准点击，别漏掉。</p>
+        </button>
+        <button class="entry-card accent-c" data-scene="memory" type="button">
+          <span class="tag">单人</span>
+          <h3>记忆对对碰</h3>
+          <p>翻牌找相同 emoji，24 张牌全部配对即通关。</p>
+        </button>
+      </div>
+
+      <p class="footer-note">说明：本版本不保存成绩，只保存音效开关设置。</p>
+    </div>
+  </section>
+
+  <section id="scene-speed" class="scene" hidden>
+    <div class="game-shell">
+      <div class="scene-head">
+        <button type="button" class="back-btn" data-back-home>返回首页</button>
+        <h2>手速测试</h2>
+        <button id="speed-reset" type="button" class="ghost">重置</button>
+      </div>
+      <p class="scene-desc">点击开始后 10 秒倒计时。时间结束自动结算 CPS。</p>
+      <div class="chip-row">
+        <span class="chip">倒计时：<strong id="speed-timer">10.0</strong>s</span>
+        <span class="chip">点击：<strong id="speed-score">0</strong></span>
+        <span class="chip">CPS：<strong id="speed-cps">0.00</strong></span>
+      </div>
+      <div class="control-row">
+        <button id="speed-start" type="button" class="primary">开始</button>
+      </div>
+      <div id="speed-pad" class="speed-pad" aria-label="手速点击区域">
+        <span class="hint">点击任意位置加分</span>
+      </div>
+      <p class="status" id="speed-status">点击开始后进入计时。</p>
+    </div>
+  </section>
+
+  <section id="scene-duel" class="scene" hidden>
+    <div class="game-shell">
+      <div class="scene-head">
+        <button type="button" class="back-btn" data-back-home>返回首页</button>
+        <h2>双人手速对决</h2>
+        <button id="duel-reset" type="button" class="ghost">重置</button>
+      </div>
+      <p class="scene-desc">点击开始后双方同时冲刺 8 秒。倒计时结束自动判胜负。</p>
+      <div class="chip-row">
+        <span class="chip">倒计时：<strong id="duel-timer">8.0</strong>s</span>
+        <span class="chip">P1：<strong id="duel-p1-score">0</strong></span>
+        <span class="chip">P2：<strong id="duel-p2-score">0</strong></span>
+      </div>
+      <div class="control-row">
+        <button id="duel-start" type="button" class="primary">开始对决</button>
+      </div>
+      <div class="duel-wrap">
+        <div class="duel-lane">
+          <h3>玩家 1</h3>
+          <button id="duel-p1-target" type="button" class="duel-target p1" disabled>P1 点我</button>
+        </div>
+        <div class="duel-lane">
+          <h3>玩家 2</h3>
+          <button id="duel-p2-target" type="button" class="duel-target p2" disabled>P2 点我</button>
+        </div>
+      </div>
+      <p class="status" id="duel-status">点击开始后计时。</p>
+    </div>
+  </section>
+  <section id="scene-ttt" class="scene" hidden>
+    <div class="game-shell">
+      <div class="scene-head">
+        <button type="button" class="back-btn" data-back-home>返回首页</button>
+        <h2>双人井字棋</h2>
+        <button id="ttt-reset" type="button" class="ghost">新一局</button>
+      </div>
+      <p class="scene-desc">同屏双人轮流落子，X 先手，先连成三子获胜。</p>
+      <div class="chip-row">
+        <span class="chip">当前回合：<strong id="ttt-turn">P1(X)</strong></span>
+      </div>
+      <div id="ttt-board" class="ttt-board"></div>
+      <p class="status" id="ttt-status">开始对局吧。</p>
+    </div>
+  </section>
+
+  <section id="scene-react" class="scene" hidden>
+    <div class="game-shell">
+      <div class="scene-head">
+        <button type="button" class="back-btn" data-back-home>返回首页</button>
+        <h2>反应力闪击</h2>
+        <button id="react-start" type="button" class="primary">开始 60 秒</button>
+      </div>
+      <p class="scene-desc">信号亮起后立即点击。提前点击算失误并扣分。</p>
+      <div class="chip-row">
+        <span class="chip">倒计时：<strong id="react-timer">60.0</strong>s</span>
+        <span class="chip">得分：<strong id="react-score">0</strong></span>
+        <span class="chip">命中：<strong id="react-hits">0</strong></span>
+        <span class="chip">失误：<strong id="react-misses">0</strong></span>
+        <span class="chip">命中率：<strong id="react-accuracy">0.0%</strong></span>
+        <span class="chip">平均反应：<strong id="react-avg">--</strong>ms</span>
+      </div>
+      <div id="react-pad" class="react-pad is-waiting" aria-label="反应力闪击区域">
+        <span id="react-signal-text" class="signal-text">点击开始后，等待信号</span>
+      </div>
+      <div id="react-result" class="result-panel" hidden>
+        <h3>本局结算</h3>
+        <div class="result-grid">
+          <div class="result-item">得分<strong id="react-result-score">0</strong></div>
+          <div class="result-item">命中率<strong id="react-result-accuracy">0.0%</strong></div>
+          <div class="result-item">平均反应<strong id="react-result-avg">--</strong></div>
+        </div>
+        <button id="react-replay" type="button" class="primary">再来一局</button>
+      </div>
+      <p class="status" id="react-status">准备开始。</p>
+    </div>
+  </section>
+
+  <section id="scene-balloon" class="scene" hidden>
+    <div class="game-shell">
+      <div class="scene-head">
+        <button type="button" class="back-btn" data-back-home>返回首页</button>
+        <h2>打气球</h2>
+        <button id="balloon-start" type="button" class="primary">开始 60 秒</button>
+      </div>
+      <p class="scene-desc">60 秒内随机弹出气球。点击得分，漏掉会扣分。</p>
+      <div class="chip-row">
+        <span class="chip">倒计时：<strong id="balloon-timer">60.0</strong>s</span>
+        <span class="chip">得分：<strong id="balloon-score">0</strong></span>
+        <span class="chip">命中：<strong id="balloon-hits">0</strong></span>
+        <span class="chip">漏掉：<strong id="balloon-misses">0</strong></span>
+        <span class="chip">命中率：<strong id="balloon-accuracy">0.0%</strong></span>
+        <span class="chip">平均反应：<strong id="balloon-avg">--</strong></span>
+      </div>
+      <div id="balloon-field" class="balloon-field" aria-label="打气球区域"></div>
+      <div id="balloon-result" class="result-panel" hidden>
+        <h3>本局结算</h3>
+        <div class="result-grid">
+          <div class="result-item">得分<strong id="balloon-result-score">0</strong></div>
+          <div class="result-item">命中率<strong id="balloon-result-accuracy">0.0%</strong></div>
+          <div class="result-item">平均反应<strong id="balloon-result-avg">--</strong></div>
+        </div>
+        <button id="balloon-replay" type="button" class="primary">再来一局</button>
+      </div>
+      <p class="status" id="balloon-status">准备开始。</p>
+    </div>
+  </section>
+
+  <section id="scene-memory" class="scene" hidden>
+    <div class="game-shell">
+      <div class="scene-head">
+        <button type="button" class="back-btn" data-back-home>返回首页</button>
+        <h2>记忆对对碰</h2>
+        <button id="memory-reset" type="button" class="ghost">重开</button>
+      </div>
+      <p class="scene-desc">翻开两张相同 emoji 即可配对，不匹配会翻回。</p>
+      <div class="chip-row">
+        <span class="chip">步数：<strong id="memory-moves">0</strong></span>
+        <span class="chip">用时：<strong id="memory-time">0</strong>s</span>
+        <span class="chip">配对：<strong id="memory-matched">0/12</strong></span>
+      </div>
+      <div id="memory-board" class="memory-board"></div>
+      <p class="status" id="memory-status">请选择第一张牌。</p>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const byId = (id) => document.getElementById(id);
+      const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+      const shuffle = (arr) => {
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      };
+      const clamp = (min, value, max) => Math.max(min, Math.min(max, value));
+
+      const SETTINGS_KEY = "mg_v2_settings";
+      const DEFAULT_SETTINGS = { soundEnabled: true };
+
+      const loadSettings = () => {
+        try {
+          const raw = localStorage.getItem(SETTINGS_KEY);
+          if (!raw) {
+            return { ...DEFAULT_SETTINGS };
+          }
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") {
+            return { ...DEFAULT_SETTINGS };
+          }
+          return { ...DEFAULT_SETTINGS, ...parsed };
+        } catch (_error) {
+          return { ...DEFAULT_SETTINGS };
+        }
+      };
+
+      const saveSettings = (settings) => {
+        try {
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        } catch (_error) {
+          // ignore
+        }
+      };
+
+      const writeAscii = (view, offset, text) => {
+        for (let i = 0; i < text.length; i += 1) {
+          view.setUint8(offset + i, text.charCodeAt(i));
+        }
+      };
+
+      const createWavDataUri = (freq, durationMs, volume = 0.22) => {
+        const sampleRate = 22050;
+        const sampleCount = Math.max(1, Math.floor(sampleRate * durationMs / 1000));
+        const dataSize = sampleCount * 2;
+        const buffer = new ArrayBuffer(44 + dataSize);
+        const view = new DataView(buffer);
+
+        writeAscii(view, 0, "RIFF");
+        view.setUint32(4, 36 + dataSize, true);
+        writeAscii(view, 8, "WAVE");
+        writeAscii(view, 12, "fmt ");
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeAscii(view, 36, "data");
+        view.setUint32(40, dataSize, true);
+
+        for (let i = 0; i < sampleCount; i += 1) {
+          const t = i / sampleRate;
+          const fadeIn = Math.min(1, i / (sampleRate * 0.01));
+          const fadeOut = Math.min(1, (sampleCount - i) / (sampleRate * 0.02));
+          const env = Math.min(fadeIn, fadeOut);
+          const sample = Math.sin(2 * Math.PI * freq * t) * env * volume;
+          view.setInt16(44 + i * 2, Math.max(-1, Math.min(1, sample)) * 32767, true);
+        }
+
+        const bytes = new Uint8Array(buffer);
+        let binary = "";
+        const step = 0x8000;
+        for (let i = 0; i < bytes.length; i += step) {
+          binary += String.fromCharCode(...bytes.subarray(i, i + step));
+        }
+
+        return `data:audio/wav;base64,${btoa(binary)}`;
+      };
+
+      const SOUND_BANK = {
+        click: createWavDataUri(650, 70, 0.2),
+        success: createWavDataUri(920, 150, 0.24),
+        fail: createWavDataUri(240, 160, 0.24)
+      };
+
+      const appState = {
+        currentScene: "home",
+        soundEnabled: true,
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          isLandscape: window.innerWidth >= window.innerHeight
+        }
+      };
+
+      let audioReady = false;
+      document.addEventListener("pointerdown", () => {
+        audioReady = true;
+      }, { once: true, passive: true });
+
+      const playSound = (name) => {
+        if (!appState.soundEnabled || !audioReady) {
+          return;
+        }
+        const src = SOUND_BANK[name];
+        if (!src) {
+          return;
+        }
+        try {
+          const audio = new Audio(src);
+          audio.volume = 0.82;
+          void audio.play();
+        } catch (_error) {
+          // ignore audio failure
+        }
+      };
+
+      const settings = loadSettings();
+      appState.soundEnabled = Boolean(settings.soundEnabled);
+
+      const soundToggleBtn = byId("sound-toggle");
+      const settingsResetBtn = byId("settings-reset");
+
+      const refreshSoundToggle = () => {
+        soundToggleBtn.textContent = `音效：${appState.soundEnabled ? "开" : "关"}`;
+      };
+
+      refreshSoundToggle();
+
+      soundToggleBtn.addEventListener("click", () => {
+        appState.soundEnabled = !appState.soundEnabled;
+        saveSettings({ soundEnabled: appState.soundEnabled });
+        refreshSoundToggle();
+        if (appState.soundEnabled) {
+          audioReady = true;
+          playSound("click");
+        }
+      });
+
+      settingsResetBtn.addEventListener("click", () => {
+        appState.soundEnabled = true;
+        saveSettings({ soundEnabled: true });
+        refreshSoundToggle();
+        playSound("click");
+      });
+
+      const sceneIds = ["home", "speed", "duel", "ttt", "react", "balloon", "memory"];
+      const sceneEls = Object.fromEntries(sceneIds.map((id) => [id, byId(`scene-${id}`)]));
+
+      const modules = {};
+
+      const ResponsiveLayout = (() => {
+        let resizeTimer = null;
+
+        const computeCell = (cols, min, max, available, gap) => {
+          const raw = Math.floor((available - gap * (cols - 1)) / cols);
+          return clamp(min, raw, max);
+        };
+
+        const apply = () => {
+          const width = window.innerWidth;
+          const height = window.innerHeight;
+          const isLandscape = width >= height;
+          appState.viewport = { width, height, isLandscape };
+
+          const activeScene = sceneEls[appState.currentScene] || sceneEls.home;
+          const shell = activeScene
+            ? activeScene.querySelector(".game-shell, .home-shell")
+            : null;
+          const shellWidth = shell ? shell.clientWidth : width;
+
+          const gap = Math.round(clamp(6, width * 0.007, 12));
+          const shellPadding = isLandscape && width >= 768 ? 24 : width < 480 ? 12 : 16;
+          const buttonMinHeight = isLandscape && width >= 768 ? 48 : 44;
+          const availableWidth = Math.max(220, Math.floor(shellWidth - shellPadding * 2 - 8));
+
+          const tttCell = computeCell(3, 60, 150, availableWidth, gap);
+          const memoryMin = isLandscape && width >= 768 ? 50 : 44;
+          const memoryCell = computeCell(6, memoryMin, 120, availableWidth, gap);
+          const reactPadHeight = isLandscape && width >= 768
+            ? clamp(260, Math.round(height * 0.46), 430)
+            : clamp(220, Math.round(height * 0.36), 340);
+          const balloonFieldHeight = isLandscape && width >= 768
+            ? clamp(300, Math.round(height * 0.52), 500)
+            : clamp(250, Math.round(height * 0.42), 400);
+
+          const rootStyle = document.documentElement.style;
+          rootStyle.setProperty("--board-gap", `${gap}px`);
+          rootStyle.setProperty("--ttt-cell-size", `${tttCell}px`);
+          rootStyle.setProperty("--memory-cell-size", `${memoryCell}px`);
+          rootStyle.setProperty("--react-pad-height", `${reactPadHeight}px`);
+          rootStyle.setProperty("--balloon-field-height", `${balloonFieldHeight}px`);
+          rootStyle.setProperty("--game-shell-padding", `${shellPadding}px`);
+          rootStyle.setProperty("--button-min-height", `${buttonMinHeight}px`);
+        };
+
+        const onResize = () => {
+          if (resizeTimer) {
+            clearTimeout(resizeTimer);
+          }
+          resizeTimer = setTimeout(() => {
+            apply();
+          }, 80);
+        };
+
+        return {
+          init() {
+            window.addEventListener("resize", onResize, { passive: true });
+            window.addEventListener("orientationchange", onResize, { passive: true });
+            apply();
+          },
+          apply,
+          destroy() {
+            window.removeEventListener("resize", onResize);
+            window.removeEventListener("orientationchange", onResize);
+            if (resizeTimer) {
+              clearTimeout(resizeTimer);
+              resizeTimer = null;
+            }
+          }
+        };
+      })();
+
+      const SceneRouter = {
+        init() {
+          window.addEventListener("hashchange", () => this.handleHashChange());
+          this.handleHashChange();
+        },
+        go(sceneId) {
+          const id = sceneIds.includes(sceneId) ? sceneId : "home";
+          const hash = `#${id}`;
+          if (location.hash !== hash) {
+            location.hash = hash;
+          } else {
+            this.show(id);
+          }
+        },
+        backHome() {
+          this.go("home");
+        },
+        handleHashChange() {
+          const hash = location.hash.replace("#", "").trim();
+          const id = sceneIds.includes(hash) ? hash : "home";
+          this.show(id);
+        },
+        show(id) {
+          const target = sceneIds.includes(id) ? id : "home";
+          const prev = appState.currentScene;
+
+          if (prev !== target && modules[prev] && typeof modules[prev].exit === "function") {
+            modules[prev].exit();
+          }
+
+          sceneIds.forEach((sceneId) => {
+            sceneEls[sceneId].hidden = sceneId !== target;
+          });
+
+          appState.currentScene = target;
+
+          if (modules[target] && typeof modules[target].enter === "function") {
+            modules[target].enter();
+          }
+
+          ResponsiveLayout.apply();
+        }
+      };
+
+      document.querySelectorAll("[data-scene]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          SceneRouter.go(btn.dataset.scene || "home");
+        });
+      });
+
+      document.querySelectorAll("[data-back-home]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          SceneRouter.backHome();
+        });
+      });
+      function createSpeedGame() {
+        let refs;
+        let running = false;
+        let score = 0;
+        let startAt = 0;
+        let endAt = 0;
+        let ticker = null;
+
+        const stopTicker = () => {
+          if (ticker) {
+            clearInterval(ticker);
+            ticker = null;
+          }
+        };
+
+        const render = () => {
+          refs.score.textContent = String(score);
+        };
+
+        const addRipple = (event) => {
+          const rect = refs.pad.getBoundingClientRect();
+          const ripple = document.createElement("span");
+          ripple.className = "speed-ripple";
+          ripple.style.left = String(event.clientX - rect.left) + "px";
+          ripple.style.top = String(event.clientY - rect.top) + "px";
+          refs.pad.appendChild(ripple);
+          setTimeout(() => {
+            ripple.remove();
+          }, 340);
+        };
+
+        const finish = () => {
+          if (!running) {
+            return;
+          }
+          running = false;
+          stopTicker();
+          const cps = score / 10;
+          refs.timer.textContent = "0.0";
+          refs.cps.textContent = cps.toFixed(2);
+          refs.status.textContent = "本局 CPS " + cps.toFixed(2);
+          refs.pad.dataset.running = "false";
+          playSound("success");
+        };
+
+        const tick = () => {
+          const now = performance.now();
+          const remain = Math.max(0, endAt - now);
+          refs.timer.textContent = (remain / 1000).toFixed(1);
+          const elapsed = Math.max(0.001, (now - startAt) / 1000);
+          refs.cps.textContent = (score / elapsed).toFixed(2);
+          if (remain <= 0) {
+            finish();
+          }
+        };
+
+        return {
+          init(rootEl) {
+            refs = {
+              start: rootEl.querySelector("#speed-start"),
+              reset: rootEl.querySelector("#speed-reset"),
+              pad: rootEl.querySelector("#speed-pad"),
+              timer: rootEl.querySelector("#speed-timer"),
+              score: rootEl.querySelector("#speed-score"),
+              cps: rootEl.querySelector("#speed-cps"),
+              status: rootEl.querySelector("#speed-status")
+            };
+
+            refs.start.addEventListener("click", () => {
+              if (running) {
+                return;
+              }
+              running = true;
+              score = 0;
+              render();
+              refs.timer.textContent = "10.0";
+              refs.cps.textContent = "0.00";
+              refs.status.textContent = "开始点击...";
+              refs.pad.dataset.running = "true";
+              startAt = performance.now();
+              endAt = startAt + 10000;
+              stopTicker();
+              ticker = setInterval(tick, 50);
+              playSound("click");
+            });
+
+            refs.reset.addEventListener("click", () => {
+              this.reset();
+              playSound("click");
+            });
+
+            refs.pad.addEventListener("pointerdown", (event) => {
+              event.preventDefault();
+              if (!running) {
+                return;
+              }
+              score += 1;
+              render();
+              addRipple(event);
+              if (score % 5 === 0) {
+                playSound("click");
+              }
+            });
+
+            this.reset();
+          },
+          enter() {},
+          exit() {
+            stopTicker();
+            running = false;
+            refs.pad.dataset.running = "false";
+          },
+          reset() {
+            stopTicker();
+            running = false;
+            score = 0;
+            refs.timer.textContent = "10.0";
+            refs.score.textContent = "0";
+            refs.cps.textContent = "0.00";
+            refs.status.textContent = "点击开始后进入计时。";
+            refs.pad.dataset.running = "false";
+            refs.pad.querySelectorAll(".speed-ripple").forEach((node) => node.remove());
+          },
+          getState() {
+            return { running, score };
+          },
+          destroy() {
+            stopTicker();
+          }
+        };
+      }
+
+      function createDuelGame() {
+        let refs;
+        let running = false;
+        let p1 = 0;
+        let p2 = 0;
+        let startAt = 0;
+        let endAt = 0;
+        let ticker = null;
+
+        const stopTicker = () => {
+          if (ticker) {
+            clearInterval(ticker);
+            ticker = null;
+          }
+        };
+
+        const render = () => {
+          refs.p1.textContent = String(p1);
+          refs.p2.textContent = String(p2);
+        };
+
+        const finish = () => {
+          if (!running) {
+            return;
+          }
+          running = false;
+          stopTicker();
+          refs.p1Target.disabled = true;
+          refs.p2Target.disabled = true;
+          refs.timer.textContent = "0.0";
+
+          if (p1 > p2) {
+            refs.status.textContent = "玩家 1 获胜";
+          } else if (p2 > p1) {
+            refs.status.textContent = "玩家 2 获胜";
+          } else {
+            refs.status.textContent = "平局";
+          }
+          playSound("success");
+        };
+
+        const tick = () => {
+          const remain = Math.max(0, endAt - performance.now());
+          refs.timer.textContent = (remain / 1000).toFixed(1);
+          if (remain <= 0) {
+            finish();
+          }
+        };
+
+        return {
+          init(rootEl) {
+            refs = {
+              start: rootEl.querySelector("#duel-start"),
+              reset: rootEl.querySelector("#duel-reset"),
+              p1Target: rootEl.querySelector("#duel-p1-target"),
+              p2Target: rootEl.querySelector("#duel-p2-target"),
+              timer: rootEl.querySelector("#duel-timer"),
+              p1: rootEl.querySelector("#duel-p1-score"),
+              p2: rootEl.querySelector("#duel-p2-score"),
+              status: rootEl.querySelector("#duel-status")
+            };
+
+            refs.start.addEventListener("click", () => {
+              if (running) {
+                return;
+              }
+              running = true;
+              p1 = 0;
+              p2 = 0;
+              render();
+              refs.timer.textContent = "8.0";
+              refs.status.textContent = "冲刺中...";
+              refs.p1Target.disabled = false;
+              refs.p2Target.disabled = false;
+              startAt = performance.now();
+              endAt = startAt + 8000;
+              stopTicker();
+              ticker = setInterval(tick, 50);
+              playSound("click");
+            });
+
+            refs.reset.addEventListener("click", () => {
+              this.reset();
+              playSound("click");
+            });
+
+            refs.p1Target.addEventListener("pointerdown", (event) => {
+              event.preventDefault();
+              if (!running) {
+                return;
+              }
+              p1 += 1;
+              refs.p1.textContent = String(p1);
+            });
+
+            refs.p2Target.addEventListener("pointerdown", (event) => {
+              event.preventDefault();
+              if (!running) {
+                return;
+              }
+              p2 += 1;
+              refs.p2.textContent = String(p2);
+            });
+
+            this.reset();
+          },
+          enter() {},
+          exit() {
+            stopTicker();
+            running = false;
+            refs.p1Target.disabled = true;
+            refs.p2Target.disabled = true;
+          },
+          reset() {
+            stopTicker();
+            running = false;
+            p1 = 0;
+            p2 = 0;
+            refs.timer.textContent = "8.0";
+            refs.p1Target.disabled = true;
+            refs.p2Target.disabled = true;
+            render();
+            refs.status.textContent = "点击开始后计时。";
+          },
+          getState() {
+            return { running, p1, p2 };
+          },
+          destroy() {
+            stopTicker();
+          }
+        };
+      }
+
+      function createTttGame() {
+        let refs;
+        let board = Array(9).fill("");
+        let turn = "X";
+        let active = true;
+
+        const lines = [
+          [0, 1, 2], [3, 4, 5], [6, 7, 8],
+          [0, 3, 6], [1, 4, 7], [2, 5, 8],
+          [0, 4, 8], [2, 4, 6]
+        ];
+
+        const render = () => {
+          const cells = refs.board.querySelectorAll(".ttt-cell");
+          board.forEach((value, idx) => {
+            cells[idx].textContent = value;
+            cells[idx].disabled = !active || value !== "";
+          });
+          refs.turn.textContent = turn === "X" ? "P1(X)" : "P2(O)";
+        };
+
+        const winner = () => {
+          for (let i = 0; i < lines.length; i += 1) {
+            const [a, b, c] = lines[i];
+            if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+              return board[a];
+            }
+          }
+          return "";
+        };
+
+        const move = (idx) => {
+          if (!active || board[idx]) {
+            return;
+          }
+
+          board[idx] = turn;
+          const w = winner();
+          if (w) {
+            active = false;
+            refs.status.textContent = w === "X" ? "P1(X) 获胜" : "P2(O) 获胜";
+            playSound("success");
+            render();
+            return;
+          }
+
+          if (board.every((cell) => cell !== "")) {
+            active = false;
+            refs.status.textContent = "平局";
+            playSound("fail");
+            render();
+            return;
+          }
+
+          turn = turn === "X" ? "O" : "X";
+          refs.status.textContent = "继续下棋";
+          playSound("click");
+          render();
+        };
+
+        return {
+          init(rootEl) {
+            refs = {
+              board: rootEl.querySelector("#ttt-board"),
+              turn: rootEl.querySelector("#ttt-turn"),
+              status: rootEl.querySelector("#ttt-status"),
+              reset: rootEl.querySelector("#ttt-reset")
+            };
+
+            refs.board.innerHTML = "";
+            for (let i = 0; i < 9; i += 1) {
+              const cell = document.createElement("button");
+              cell.type = "button";
+              cell.className = "ttt-cell";
+              cell.dataset.idx = String(i);
+              refs.board.appendChild(cell);
+            }
+
+            refs.board.addEventListener("pointerdown", (event) => {
+              const cell = event.target.closest(".ttt-cell");
+              if (!cell) {
+                return;
+              }
+              event.preventDefault();
+              const idx = Number(cell.dataset.idx);
+              if (!Number.isNaN(idx)) {
+                move(idx);
+              }
+            });
+
+            refs.reset.addEventListener("click", () => {
+              this.reset();
+              playSound("click");
+            });
+
+            this.reset();
+          },
+          enter() {},
+          exit() {},
+          reset() {
+            board = Array(9).fill("");
+            turn = "X";
+            active = true;
+            refs.status.textContent = "开始对局吧。";
+            render();
+          },
+          getState() {
+            return { board: board.slice(), turn, active };
+          },
+          destroy() {}
+        };
+      }
+      function createReactionRushGame() {
+        let refs;
+        let running = false;
+        let score = 0;
+        let hits = 0;
+        let misses = 0;
+        let reactionTotal = 0;
+        let reactionCount = 0;
+        let endAt = 0;
+        let ticker = null;
+        let signalTimer = null;
+        let missFlashTimer = null;
+        let signalActive = false;
+        let signalAt = 0;
+
+        const clearTicker = () => {
+          if (ticker) {
+            clearInterval(ticker);
+            ticker = null;
+          }
+        };
+
+        const clearSignalTimer = () => {
+          if (signalTimer) {
+            clearTimeout(signalTimer);
+            signalTimer = null;
+          }
+        };
+
+        const clearMissFlashTimer = () => {
+          if (missFlashTimer) {
+            clearTimeout(missFlashTimer);
+            missFlashTimer = null;
+          }
+        };
+
+        const clearAllTimers = () => {
+          clearTicker();
+          clearSignalTimer();
+          clearMissFlashTimer();
+        };
+
+        const accuracy = () => {
+          const total = hits + misses;
+          if (total === 0) {
+            return 0;
+          }
+          return (hits / total) * 100;
+        };
+
+        const averageReaction = () => {
+          if (reactionCount === 0) {
+            return null;
+          }
+          return Math.round(reactionTotal / reactionCount);
+        };
+
+        const setPadState = (stateClass, text) => {
+          refs.pad.classList.remove("is-waiting", "is-live", "is-miss");
+          refs.pad.classList.add(stateClass);
+          refs.signalText.textContent = text;
+        };
+
+        const renderStats = (remainMs = 60000) => {
+          refs.timer.textContent = (Math.max(0, remainMs) / 1000).toFixed(1);
+          refs.score.textContent = String(score);
+          refs.hits.textContent = String(hits);
+          refs.misses.textContent = String(misses);
+          refs.accuracy.textContent = accuracy().toFixed(1) + "%";
+          const avg = averageReaction();
+          refs.avg.textContent = avg === null ? "--" : String(avg);
+        };
+
+        const scheduleSignal = () => {
+          clearSignalTimer();
+          if (!running) {
+            return;
+          }
+          signalActive = false;
+          setPadState("is-waiting", "等待信号...");
+          const wait = randomInt(350, 1100);
+          signalTimer = setTimeout(() => {
+            if (!running) {
+              return;
+            }
+            signalActive = true;
+            signalAt = performance.now();
+            setPadState("is-live", "现在点！");
+          }, wait);
+        };
+
+        const stopRound = () => {
+          clearAllTimers();
+          signalActive = false;
+          running = false;
+        };
+
+        const finishRound = () => {
+          if (!running) {
+            return;
+          }
+          stopRound();
+          renderStats(0);
+          const avg = averageReaction();
+          refs.resultScore.textContent = String(score);
+          refs.resultAccuracy.textContent = accuracy().toFixed(1) + "%";
+          refs.resultAvg.textContent = avg === null ? "--" : `${avg}ms`;
+          refs.result.hidden = false;
+          refs.start.disabled = false;
+          setPadState("is-waiting", "本局结束");
+          refs.status.textContent = "时间到，点击"再来一局"。";
+          playSound("success");
+        };
+
+        const tick = () => {
+          const remain = Math.max(0, endAt - performance.now());
+          renderStats(remain);
+          if (remain <= 0) {
+            finishRound();
+          }
+        };
+
+        const startRound = () => {
+          if (running) {
+            return;
+          }
+          clearAllTimers();
+          running = true;
+          signalActive = false;
+          score = 0;
+          hits = 0;
+          misses = 0;
+          reactionTotal = 0;
+          reactionCount = 0;
+          endAt = performance.now() + 60000;
+          refs.start.disabled = true;
+          refs.result.hidden = true;
+          refs.status.textContent = "等待信号，亮起后再点。";
+          renderStats(60000);
+          scheduleSignal();
+          ticker = setInterval(tick, 50);
+          playSound("click");
+        };
+
+        const handlePadDown = (event) => {
+          event.preventDefault();
+          if (!running) {
+            return;
+          }
+          if (signalActive) {
+            const reactionMs = Math.max(1, Math.round(performance.now() - signalAt));
+            signalActive = false;
+            hits += 1;
+            score = Math.max(0, score + 10);
+            reactionTotal += reactionMs;
+            reactionCount += 1;
+            refs.status.textContent = `命中！反应 ${reactionMs}ms`;
+            renderStats(Math.max(0, endAt - performance.now()));
+            playSound("success");
+            scheduleSignal();
+            return;
+          }
+          misses += 1;
+          score = Math.max(0, score - 3);
+          refs.status.textContent = "过早点击，扣 3 分";
+          setPadState("is-miss", "太早了");
+          renderStats(Math.max(0, endAt - performance.now()));
+          playSound("fail");
+          clearMissFlashTimer();
+          missFlashTimer = setTimeout(() => {
+            if (running && !signalActive) {
+              setPadState("is-waiting", "等待信号...");
+            }
+          }, 180);
+        };
+
+        return {
+          init(rootEl) {
+            refs = {
+              start: rootEl.querySelector("#react-start"),
+              replay: rootEl.querySelector("#react-replay"),
+              pad: rootEl.querySelector("#react-pad"),
+              signalText: rootEl.querySelector("#react-signal-text"),
+              timer: rootEl.querySelector("#react-timer"),
+              score: rootEl.querySelector("#react-score"),
+              hits: rootEl.querySelector("#react-hits"),
+              misses: rootEl.querySelector("#react-misses"),
+              accuracy: rootEl.querySelector("#react-accuracy"),
+              avg: rootEl.querySelector("#react-avg"),
+              result: rootEl.querySelector("#react-result"),
+              resultScore: rootEl.querySelector("#react-result-score"),
+              resultAccuracy: rootEl.querySelector("#react-result-accuracy"),
+              resultAvg: rootEl.querySelector("#react-result-avg"),
+              status: rootEl.querySelector("#react-status")
+            };
+
+            refs.start.addEventListener("click", () => {
+              startRound();
+            });
+
+            refs.replay.addEventListener("click", () => {
+              startRound();
+            });
+
+            refs.pad.addEventListener("pointerdown", handlePadDown);
+
+            this.reset();
+          },
+          enter() {},
+          exit() {
+            this.reset();
+          },
+          reset() {
+            stopRound();
+            score = 0;
+            hits = 0;
+            misses = 0;
+            reactionTotal = 0;
+            reactionCount = 0;
+            refs.start.disabled = false;
+            refs.result.hidden = true;
+            refs.status.textContent = "准备开始。";
+            setPadState("is-waiting", "点击开始后，等待信号");
+            renderStats(60000);
+          },
+          getState() {
+            return { running, score, hits, misses, avgReactionMs: averageReaction() };
+          },
+          destroy() {
+            stopRound();
+          }
+        };
+      }
+
+      function createBalloonPopGame() {
+        let refs;
+        let running = false;
+        let score = 0;
+        let hits = 0;
+        let misses = 0;
+        let endAt = 0;
+        let ticker = null;
+        let spawnTimer = null;
+        let idSeed = 0;
+        const balloons = new Map();
+
+        const clearTicker = () => {
+          if (ticker) {
+            clearInterval(ticker);
+            ticker = null;
+          }
+        };
+
+        const clearSpawnTimer = () => {
+          if (spawnTimer) {
+            clearTimeout(spawnTimer);
+            spawnTimer = null;
+          }
+        };
+
+        const clearBalloons = () => {
+          balloons.forEach((item) => {
+            clearTimeout(item.lifeTimer);
+            item.el.remove();
+          });
+          balloons.clear();
+        };
+
+        const clearAll = () => {
+          clearTicker();
+          clearSpawnTimer();
+          clearBalloons();
+          running = false;
+        };
+
+        const accuracy = () => {
+          const total = hits + misses;
+          if (total === 0) {
+            return 0;
+          }
+          return (hits / total) * 100;
+        };
+
+        const renderStats = (remainMs = 60000) => {
+          refs.timer.textContent = (Math.max(0, remainMs) / 1000).toFixed(1);
+          refs.score.textContent = String(score);
+          refs.hits.textContent = String(hits);
+          refs.misses.textContent = String(misses);
+          refs.accuracy.textContent = accuracy().toFixed(1) + "%";
+          refs.avg.textContent = "--";
+        };
+
+        const removeBalloon = (id) => {
+          const item = balloons.get(id);
+          if (!item) {
+            return null;
+          }
+          clearTimeout(item.lifeTimer);
+          item.el.remove();
+          balloons.delete(id);
+          return item;
+        };
+
+        const onBalloonMiss = (id) => {
+          const removed = removeBalloon(id);
+          if (!removed || !running) {
+            return;
+          }
+          misses += 1;
+          score = Math.max(0, score - 2);
+          refs.status.textContent = "漏掉一个气球，扣 2 分";
+          renderStats(Math.max(0, endAt - performance.now()));
+          playSound("fail");
+        };
+
+        const onBalloonHit = (id) => {
+          const removed = removeBalloon(id);
+          if (!removed || !running) {
+            return;
+          }
+          hits += 1;
+          score = Math.max(0, score + 8);
+          refs.status.textContent = "命中 +8";
+          renderStats(Math.max(0, endAt - performance.now()));
+          playSound("click");
+        };
+
+        const scheduleSpawn = () => {
+          clearSpawnTimer();
+          if (!running) {
+            return;
+          }
+          const wait = randomInt(220, 480);
+          spawnTimer = setTimeout(() => {
+            spawnOne();
+          }, wait);
+        };
+
+        const spawnOne = () => {
+          if (!running) {
+            return;
+          }
+
+          const activeLimit = randomInt(3, 5);
+          if (balloons.size >= activeLimit) {
+            scheduleSpawn();
+            return;
+          }
+
+          const rect = refs.field.getBoundingClientRect();
+          const maxSize = Math.max(62, Math.floor(Math.min(110, rect.width * 0.17)));
+          const size = randomInt(58, maxSize);
+          const half = Math.ceil(size / 2) + 2;
+          const maxX = Math.max(half, Math.floor(rect.width - half));
+          const maxY = Math.max(half, Math.floor(rect.height - half));
+          const x = randomInt(half, maxX);
+          const y = randomInt(half, maxY);
+          const life = randomInt(900, 1600);
+
+          idSeed += 1;
+          const id = `balloon-${idSeed}`;
+          const el = document.createElement("button");
+          el.type = "button";
+          el.className = "balloon";
+          el.dataset.id = id;
+          el.style.width = `${size}px`;
+          el.style.height = `${size}px`;
+          el.style.left = `${x}px`;
+          el.style.top = `${y}px`;
+          el.textContent = "🎈";
+
+          refs.field.appendChild(el);
+          const lifeTimer = setTimeout(() => {
+            onBalloonMiss(id);
+          }, life);
+          balloons.set(id, { el, lifeTimer });
+
+          scheduleSpawn();
+        };
+
+        const finishRound = () => {
+          if (!running) {
+            return;
+          }
+          running = false;
+          clearTicker();
+          clearSpawnTimer();
+          clearBalloons();
+          renderStats(0);
+          refs.resultScore.textContent = String(score);
+          refs.resultAccuracy.textContent = accuracy().toFixed(1) + "%";
+          refs.resultAvg.textContent = "--";
+          refs.result.hidden = false;
+          refs.start.disabled = false;
+          refs.status.textContent = "时间到，点击"再来一局"。";
+          playSound("success");
+        };
+
+        const tick = () => {
+          const remain = Math.max(0, endAt - performance.now());
+          renderStats(remain);
+          if (remain <= 0) {
+            finishRound();
+          }
+        };
+
+        const startRound = () => {
+          if (running) {
+            return;
+          }
+          clearAll();
+          running = true;
+          score = 0;
+          hits = 0;
+          misses = 0;
+          endAt = performance.now() + 60000;
+          refs.start.disabled = true;
+          refs.result.hidden = true;
+          refs.status.textContent = "瞄准气球快速点击。";
+          renderStats(60000);
+          spawnOne();
+          ticker = setInterval(tick, 50);
+          playSound("click");
+        };
+
+        return {
+          init(rootEl) {
+            refs = {
+              start: rootEl.querySelector("#balloon-start"),
+              replay: rootEl.querySelector("#balloon-replay"),
+              field: rootEl.querySelector("#balloon-field"),
+              timer: rootEl.querySelector("#balloon-timer"),
+              score: rootEl.querySelector("#balloon-score"),
+              hits: rootEl.querySelector("#balloon-hits"),
+              misses: rootEl.querySelector("#balloon-misses"),
+              accuracy: rootEl.querySelector("#balloon-accuracy"),
+              avg: rootEl.querySelector("#balloon-avg"),
+              result: rootEl.querySelector("#balloon-result"),
+              resultScore: rootEl.querySelector("#balloon-result-score"),
+              resultAccuracy: rootEl.querySelector("#balloon-result-accuracy"),
+              resultAvg: rootEl.querySelector("#balloon-result-avg"),
+              status: rootEl.querySelector("#balloon-status")
+            };
+
+            refs.start.addEventListener("click", () => {
+              startRound();
+            });
+
+            refs.replay.addEventListener("click", () => {
+              startRound();
+            });
+
+            refs.field.addEventListener("pointerdown", (event) => {
+              const balloon = event.target.closest(".balloon");
+              if (!balloon) {
+                return;
+              }
+              event.preventDefault();
+              onBalloonHit(balloon.dataset.id || "");
+            });
+
+            this.reset();
+          },
+          enter() {},
+          exit() {
+            this.reset();
+          },
+          reset() {
+            clearAll();
+            score = 0;
+            hits = 0;
+            misses = 0;
+            refs.start.disabled = false;
+            refs.result.hidden = true;
+            refs.status.textContent = "准备开始。";
+            renderStats(60000);
+          },
+          getState() {
+            return { running, score, hitCount: hits, missCount: misses, accuracy: accuracy() };
+          },
+          destroy() {
+            clearAll();
+          }
+        };
+      }
+
+      function createMemoryGame() {
+        const ROWS = 4;
+        const COLS = 6;
+        const SYMBOLS = ["😀", "😺", "🍎", "⚽", "🎵", "🚗", "🌈", "⭐", "🔥", "🐼", "🍉", "🎲"];
+
+        let refs;
+        let cards = [];
+        let opened = [];
+        let lock = false;
+        let moves = 0;
+        let timeSec = 0;
+        let matchedPairs = 0;
+        let timer = null;
+        let started = false;
+
+        const clearTimer = () => {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+        };
+
+        const startTimer = () => {
+          clearTimer();
+          timer = setInterval(() => {
+            timeSec += 1;
+            refs.time.textContent = String(timeSec);
+          }, 1000);
+        };
+
+        const renderStats = () => {
+          refs.moves.textContent = String(moves);
+          refs.time.textContent = String(timeSec);
+          refs.matched.textContent = String(matchedPairs) + "/12";
+        };
+
+        const render = () => {
+          const tiles = refs.board.querySelectorAll(".memory-tile");
+          cards.forEach((card, idx) => {
+            const tile = tiles[idx];
+            tile.className = "memory-tile";
+            tile.dataset.idx = String(idx);
+
+            if (card.matched) {
+              tile.classList.add("matched");
+              tile.textContent = card.value;
+              tile.disabled = true;
+            } else if (card.open) {
+              tile.classList.add("open");
+              tile.textContent = card.value;
+              tile.disabled = false;
+            } else {
+              tile.classList.add("hidden");
+              tile.textContent = "?";
+              tile.disabled = false;
+            }
+          });
+          renderStats();
+        };
+
+        const finishIfDone = () => {
+          if (matchedPairs < 12) {
+            return;
+          }
+          clearTimer();
+          refs.status.textContent = "完成！共 " + moves + " 步，用时 " + timeSec + "s";
+          playSound("success");
+        };
+
+        const flip = (idx) => {
+          if (lock) {
+            return;
+          }
+          const card = cards[idx];
+          if (!card || card.matched || card.open) {
+            return;
+          }
+
+          if (!started) {
+            started = true;
+            startTimer();
+          }
+
+          card.open = true;
+          opened.push(idx);
+          render();
+          playSound("click");
+
+          if (opened.length < 2) {
+            refs.status.textContent = "再翻一张牌";
+            return;
+          }
+
+          moves += 1;
+
+          const first = cards[opened[0]];
+          const second = cards[opened[1]];
+
+          if (first.value === second.value) {
+            first.matched = true;
+            second.matched = true;
+            opened = [];
+            matchedPairs += 1;
+            refs.status.textContent = "匹配成功";
+            render();
+            playSound("success");
+            finishIfDone();
+            return;
+          }
+
+          lock = true;
+          refs.status.textContent = "不匹配，稍后翻回...";
+          playSound("fail");
+          setTimeout(() => {
+            first.open = false;
+            second.open = false;
+            opened = [];
+            lock = false;
+            refs.status.textContent = "继续寻找配对";
+            render();
+          }, 700);
+        };
+
+        const setup = () => {
+          const values = shuffle(SYMBOLS.flatMap((v) => [v, v]));
+          cards = values.map((value) => ({ value, open: false, matched: false }));
+        };
+
+        return {
+          init(rootEl) {
+            refs = {
+              board: rootEl.querySelector("#memory-board"),
+              reset: rootEl.querySelector("#memory-reset"),
+              moves: rootEl.querySelector("#memory-moves"),
+              time: rootEl.querySelector("#memory-time"),
+              matched: rootEl.querySelector("#memory-matched"),
+              status: rootEl.querySelector("#memory-status")
+            };
+
+            refs.board.innerHTML = "";
+            for (let i = 0; i < ROWS * COLS; i += 1) {
+              const tile = document.createElement("button");
+              tile.type = "button";
+              tile.className = "memory-tile hidden";
+              tile.dataset.idx = String(i);
+              tile.textContent = "?";
+              refs.board.appendChild(tile);
+            }
+
+            refs.board.addEventListener("pointerdown", (event) => {
+              const tile = event.target.closest(".memory-tile");
+              if (!tile) {
+                return;
+              }
+              event.preventDefault();
+              const idx = Number(tile.dataset.idx);
+              if (!Number.isNaN(idx)) {
+                flip(idx);
+              }
+            });
+
+            refs.reset.addEventListener("click", () => {
+              this.reset();
+              playSound("click");
+            });
+
+            this.reset();
+          },
+          enter() {},
+          exit() {
+            clearTimer();
+          },
+          reset() {
+            clearTimer();
+            setup();
+            opened = [];
+            lock = false;
+            moves = 0;
+            timeSec = 0;
+            matchedPairs = 0;
+            started = false;
+            refs.status.textContent = "请选择第一张牌。";
+            render();
+          },
+          getState() {
+            return { moves, timeSec, matchedPairs, running: matchedPairs < 12 };
+          },
+          destroy() {
+            clearTimer();
+          }
+        };
+      }
+
+      modules.speed = createSpeedGame();
+      modules.duel = createDuelGame();
+      modules.ttt = createTttGame();
+      modules.react = createReactionRushGame();
+      modules.balloon = createBalloonPopGame();
+      modules.memory = createMemoryGame();
+
+      modules.speed.init(sceneEls.speed);
+      modules.duel.init(sceneEls.duel);
+      modules.ttt.init(sceneEls.ttt);
+      modules.react.init(sceneEls.react);
+      modules.balloon.init(sceneEls.balloon);
+      modules.memory.init(sceneEls.memory);
+
+      ResponsiveLayout.init();
+      SceneRouter.init();
+    })();
+  </script>
+</body>
+</html>
