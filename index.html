@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+﻿<!DOCTYPE html>
+<html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>插画小游戏屋 V2</title>
+  <title>插畫小遊戲屋 V2</title>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@400;700&family=Noto+Sans+SC:wght@400;600;700&display=swap");
 
@@ -655,197 +655,197 @@
     <div class="home-shell">
       <div class="home-header">
         <div class="home-title">
-          <h1>插画小游戏屋</h1>
-          <p>点击卡片进入全屏游戏页。每次只玩一款，不再同页混在一起。</p>
+          <h1>插畫小遊戲屋</h1>
+          <p>點按卡片進入全屏遊戲頁。每次只玩一款，不再同頁混在一起。</p>
         </div>
         <div class="top-actions">
-          <button id="sound-toggle" type="button" class="primary">音效：开</button>
-          <button id="settings-reset" type="button" class="danger">恢复默认设置</button>
+          <button id="sound-toggle" type="button" class="primary">音效：開</button>
+          <button id="settings-reset" type="button" class="danger">還原預設設定</button>
         </div>
       </div>
 
       <div class="entry-grid">
         <button class="entry-card accent-a" data-scene="speed" type="button">
-          <span class="tag">单人</span>
-          <h3>手速测试</h3>
-          <p>10 秒点击冲刺，结算本局 CPS。</p>
+          <span class="tag">單人</span>
+          <h3>手速測試</h3>
+          <p>10 秒點按衝刺，結算本局 CPS。</p>
         </button>
         <button class="entry-card accent-b" data-scene="duel" type="button">
-          <span class="tag">双人</span>
-          <h3>手速对决</h3>
-          <p>左右分区同屏开点，8 秒决胜。</p>
+          <span class="tag">雙人</span>
+          <h3>手速對決</h3>
+          <p>左右分區同屏開點，8 秒決勝。</p>
         </button>
         <button class="entry-card accent-c" data-scene="ttt" type="button">
-          <span class="tag">双人</span>
+          <span class="tag">雙人</span>
           <h3>井字棋</h3>
-          <p>经典 3x3 轮流落子，先连成线获胜。</p>
+          <p>經典 3x3 輪流落子，先連成線獲勝。</p>
         </button>
         <button class="entry-card accent-b" data-scene="react" type="button">
-          <span class="tag">单人</span>
-          <h3>反应力闪击</h3>
-          <p>60 秒持续模式，亮灯即点，乱点会扣分。</p>
+          <span class="tag">單人</span>
+          <h3>反應力閃擊</h3>
+          <p>60 秒持續模式，亮燈即點，亂點會扣分。</p>
         </button>
         <button class="entry-card accent-a" data-scene="balloon" type="button">
-          <span class="tag">单人</span>
-          <h3>打气球</h3>
-          <p>60 秒随机弹出，快准点击，别漏掉。</p>
+          <span class="tag">單人</span>
+          <h3>打氣球</h3>
+          <p>60 秒隨機彈出，快準點按，別漏掉。</p>
         </button>
         <button class="entry-card accent-c" data-scene="memory" type="button">
-          <span class="tag">单人</span>
-          <h3>记忆对对碰</h3>
-          <p>翻牌找相同 emoji，24 张牌全部配对即通关。</p>
+          <span class="tag">單人</span>
+          <h3>記憶對對碰</h3>
+          <p>翻牌找相同 emoji，24 張牌全部配對即通關。</p>
         </button>
       </div>
 
-      <p class="footer-note">说明：本版本不保存成绩，只保存音效开关设置。</p>
+      <p class="footer-note">說明：本版本不保存成績，只保存音效開關設定。</p>
     </div>
   </section>
 
   <section id="scene-speed" class="scene" hidden>
     <div class="game-shell">
       <div class="scene-head">
-        <button type="button" class="back-btn" data-back-home>返回首页</button>
-        <h2>手速测试</h2>
-        <button id="speed-reset" type="button" class="ghost">重置</button>
+        <button type="button" class="back-btn" data-back-home>回首頁</button>
+        <h2>手速測試</h2>
+        <button id="speed-reset" type="button" class="ghost">重設</button>
       </div>
-      <p class="scene-desc">点击开始后 10 秒倒计时。时间结束自动结算 CPS。</p>
+      <p class="scene-desc">點按開始後 10 秒倒數。時間結束自動結算 CPS。</p>
       <div class="chip-row">
-        <span class="chip">倒计时：<strong id="speed-timer">10.0</strong>s</span>
-        <span class="chip">点击：<strong id="speed-score">0</strong></span>
+        <span class="chip">倒數：<strong id="speed-timer">10.0</strong>s</span>
+        <span class="chip">點按：<strong id="speed-score">0</strong></span>
         <span class="chip">CPS：<strong id="speed-cps">0.00</strong></span>
       </div>
       <div class="control-row">
-        <button id="speed-start" type="button" class="primary">开始</button>
+        <button id="speed-start" type="button" class="primary">開始</button>
       </div>
-      <div id="speed-pad" class="speed-pad" aria-label="手速点击区域">
-        <span class="hint">点击任意位置加分</span>
+      <div id="speed-pad" class="speed-pad" aria-label="手速點按區域">
+        <span class="hint">點按任意位置加分</span>
       </div>
-      <p class="status" id="speed-status">点击开始后进入计时。</p>
+      <p class="status" id="speed-status">點按開始後進入計時。</p>
     </div>
   </section>
 
   <section id="scene-duel" class="scene" hidden>
     <div class="game-shell">
       <div class="scene-head">
-        <button type="button" class="back-btn" data-back-home>返回首页</button>
-        <h2>双人手速对决</h2>
-        <button id="duel-reset" type="button" class="ghost">重置</button>
+        <button type="button" class="back-btn" data-back-home>回首頁</button>
+        <h2>雙人手速對決</h2>
+        <button id="duel-reset" type="button" class="ghost">重設</button>
       </div>
-      <p class="scene-desc">点击开始后双方同时冲刺 8 秒。倒计时结束自动判胜负。</p>
+      <p class="scene-desc">點按開始後雙方同時衝刺 8 秒。倒數結束自動判勝負。</p>
       <div class="chip-row">
-        <span class="chip">倒计时：<strong id="duel-timer">8.0</strong>s</span>
+        <span class="chip">倒數：<strong id="duel-timer">8.0</strong>s</span>
         <span class="chip">P1：<strong id="duel-p1-score">0</strong></span>
         <span class="chip">P2：<strong id="duel-p2-score">0</strong></span>
       </div>
       <div class="control-row">
-        <button id="duel-start" type="button" class="primary">开始对决</button>
+        <button id="duel-start" type="button" class="primary">開始對決</button>
       </div>
       <div class="duel-wrap">
         <div class="duel-lane">
           <h3>玩家 1</h3>
-          <button id="duel-p1-target" type="button" class="duel-target p1" disabled>P1 点我</button>
+          <button id="duel-p1-target" type="button" class="duel-target p1" disabled>P1 點我</button>
         </div>
         <div class="duel-lane">
           <h3>玩家 2</h3>
-          <button id="duel-p2-target" type="button" class="duel-target p2" disabled>P2 点我</button>
+          <button id="duel-p2-target" type="button" class="duel-target p2" disabled>P2 點我</button>
         </div>
       </div>
-      <p class="status" id="duel-status">点击开始后计时。</p>
+      <p class="status" id="duel-status">點按開始後計時。</p>
     </div>
   </section>
   <section id="scene-ttt" class="scene" hidden>
     <div class="game-shell">
       <div class="scene-head">
-        <button type="button" class="back-btn" data-back-home>返回首页</button>
-        <h2>双人井字棋</h2>
+        <button type="button" class="back-btn" data-back-home>回首頁</button>
+        <h2>雙人井字棋</h2>
         <button id="ttt-reset" type="button" class="ghost">新一局</button>
       </div>
-      <p class="scene-desc">同屏双人轮流落子，X 先手，先连成三子获胜。</p>
+      <p class="scene-desc">同屏雙人輪流落子，X 先手，先連成三子獲勝。</p>
       <div class="chip-row">
-        <span class="chip">当前回合：<strong id="ttt-turn">P1(X)</strong></span>
+        <span class="chip">當前回合：<strong id="ttt-turn">P1(X)</strong></span>
       </div>
       <div id="ttt-board" class="ttt-board"></div>
-      <p class="status" id="ttt-status">开始对局吧。</p>
+      <p class="status" id="ttt-status">開始對局吧。</p>
     </div>
   </section>
 
   <section id="scene-react" class="scene" hidden>
     <div class="game-shell">
       <div class="scene-head">
-        <button type="button" class="back-btn" data-back-home>返回首页</button>
-        <h2>反应力闪击</h2>
-        <button id="react-start" type="button" class="primary">开始 60 秒</button>
+        <button type="button" class="back-btn" data-back-home>回首頁</button>
+        <h2>反應力閃擊</h2>
+        <button id="react-start" type="button" class="primary">開始 60 秒</button>
       </div>
-      <p class="scene-desc">信号亮起后立即点击。提前点击算失误并扣分。</p>
+      <p class="scene-desc">信號亮起後立即點按。提早點按算失誤並扣分。</p>
       <div class="chip-row">
-        <span class="chip">倒计时：<strong id="react-timer">60.0</strong>s</span>
+        <span class="chip">倒數：<strong id="react-timer">60.0</strong>s</span>
         <span class="chip">得分：<strong id="react-score">0</strong></span>
         <span class="chip">命中：<strong id="react-hits">0</strong></span>
-        <span class="chip">失误：<strong id="react-misses">0</strong></span>
+        <span class="chip">失誤：<strong id="react-misses">0</strong></span>
         <span class="chip">命中率：<strong id="react-accuracy">0.0%</strong></span>
-        <span class="chip">平均反应：<strong id="react-avg">--</strong>ms</span>
+        <span class="chip">平均反應：<strong id="react-avg">--</strong>ms</span>
       </div>
-      <div id="react-pad" class="react-pad is-waiting" aria-label="反应力闪击区域">
-        <span id="react-signal-text" class="signal-text">点击开始后，等待信号</span>
+      <div id="react-pad" class="react-pad is-waiting" aria-label="反應力閃擊區域">
+        <span id="react-signal-text" class="signal-text">點按開始後，等待信號</span>
       </div>
       <div id="react-result" class="result-panel" hidden>
-        <h3>本局结算</h3>
+        <h3>本局結算</h3>
         <div class="result-grid">
           <div class="result-item">得分<strong id="react-result-score">0</strong></div>
           <div class="result-item">命中率<strong id="react-result-accuracy">0.0%</strong></div>
-          <div class="result-item">平均反应<strong id="react-result-avg">--</strong></div>
+          <div class="result-item">平均反應<strong id="react-result-avg">--</strong></div>
         </div>
-        <button id="react-replay" type="button" class="primary">再来一局</button>
+        <button id="react-replay" type="button" class="primary">再玩一局</button>
       </div>
-      <p class="status" id="react-status">准备开始。</p>
+      <p class="status" id="react-status">準備開始。</p>
     </div>
   </section>
 
   <section id="scene-balloon" class="scene" hidden>
     <div class="game-shell">
       <div class="scene-head">
-        <button type="button" class="back-btn" data-back-home>返回首页</button>
-        <h2>打气球</h2>
-        <button id="balloon-start" type="button" class="primary">开始 60 秒</button>
+        <button type="button" class="back-btn" data-back-home>回首頁</button>
+        <h2>打氣球</h2>
+        <button id="balloon-start" type="button" class="primary">開始 60 秒</button>
       </div>
-      <p class="scene-desc">60 秒内随机弹出气球。点击得分，漏掉会扣分。</p>
+      <p class="scene-desc">60 秒內隨機彈出氣球。點按得分，漏掉會扣分。</p>
       <div class="chip-row">
-        <span class="chip">倒计时：<strong id="balloon-timer">60.0</strong>s</span>
+        <span class="chip">倒數：<strong id="balloon-timer">60.0</strong>s</span>
         <span class="chip">得分：<strong id="balloon-score">0</strong></span>
         <span class="chip">命中：<strong id="balloon-hits">0</strong></span>
         <span class="chip">漏掉：<strong id="balloon-misses">0</strong></span>
         <span class="chip">命中率：<strong id="balloon-accuracy">0.0%</strong></span>
-        <span class="chip">平均反应：<strong id="balloon-avg">--</strong></span>
+        <span class="chip">平均反應：<strong id="balloon-avg">--</strong></span>
       </div>
-      <div id="balloon-field" class="balloon-field" aria-label="打气球区域"></div>
+      <div id="balloon-field" class="balloon-field" aria-label="打氣球區域"></div>
       <div id="balloon-result" class="result-panel" hidden>
-        <h3>本局结算</h3>
+        <h3>本局結算</h3>
         <div class="result-grid">
           <div class="result-item">得分<strong id="balloon-result-score">0</strong></div>
           <div class="result-item">命中率<strong id="balloon-result-accuracy">0.0%</strong></div>
-          <div class="result-item">平均反应<strong id="balloon-result-avg">--</strong></div>
+          <div class="result-item">平均反應<strong id="balloon-result-avg">--</strong></div>
         </div>
-        <button id="balloon-replay" type="button" class="primary">再来一局</button>
+        <button id="balloon-replay" type="button" class="primary">再玩一局</button>
       </div>
-      <p class="status" id="balloon-status">准备开始。</p>
+      <p class="status" id="balloon-status">準備開始。</p>
     </div>
   </section>
 
   <section id="scene-memory" class="scene" hidden>
     <div class="game-shell">
       <div class="scene-head">
-        <button type="button" class="back-btn" data-back-home>返回首页</button>
-        <h2>记忆对对碰</h2>
-        <button id="memory-reset" type="button" class="ghost">重开</button>
+        <button type="button" class="back-btn" data-back-home>回首頁</button>
+        <h2>記憶對對碰</h2>
+        <button id="memory-reset" type="button" class="ghost">重設</button>
       </div>
-      <p class="scene-desc">翻开两张相同 emoji 即可配对，不匹配会翻回。</p>
+      <p class="scene-desc">翻開兩張相同 emoji 即可配對，不匹配會翻回。</p>
       <div class="chip-row">
-        <span class="chip">步数：<strong id="memory-moves">0</strong></span>
-        <span class="chip">用时：<strong id="memory-time">0</strong>s</span>
-        <span class="chip">配对：<strong id="memory-matched">0/12</strong></span>
+        <span class="chip">步數：<strong id="memory-moves">0</strong></span>
+        <span class="chip">用時：<strong id="memory-time">0</strong>s</span>
+        <span class="chip">配對：<strong id="memory-matched">0/12</strong></span>
       </div>
       <div id="memory-board" class="memory-board"></div>
-      <p class="status" id="memory-status">请选择第一张牌。</p>
+      <p class="status" id="memory-status">請選擇第一張牌。</p>
     </div>
   </section>
 
@@ -983,7 +983,7 @@
       const settingsResetBtn = byId("settings-reset");
 
       const refreshSoundToggle = () => {
-        soundToggleBtn.textContent = `音效：${appState.soundEnabled ? "开" : "关"}`;
+        soundToggleBtn.textContent = `音效：${appState.soundEnabled ? "開" : "關"}`;
       };
 
       refreshSoundToggle();
@@ -1214,7 +1214,7 @@
               render();
               refs.timer.textContent = "10.0";
               refs.cps.textContent = "0.00";
-              refs.status.textContent = "开始点击...";
+              refs.status.textContent = "開始點按...";
               refs.pad.dataset.running = "true";
               startAt = performance.now();
               endAt = startAt + 10000;
@@ -1256,7 +1256,7 @@
             refs.timer.textContent = "10.0";
             refs.score.textContent = "0";
             refs.cps.textContent = "0.00";
-            refs.status.textContent = "点击开始后进入计时。";
+            refs.status.textContent = "點按開始後進入計時。";
             refs.pad.dataset.running = "false";
             refs.pad.querySelectorAll(".speed-ripple").forEach((node) => node.remove());
           },
@@ -1301,11 +1301,11 @@
           refs.timer.textContent = "0.0";
 
           if (p1 > p2) {
-            refs.status.textContent = "玩家 1 获胜";
+            refs.status.textContent = "玩家 1 獲勝";
           } else if (p2 > p1) {
-            refs.status.textContent = "玩家 2 获胜";
+            refs.status.textContent = "玩家 2 獲勝";
           } else {
-            refs.status.textContent = "平局";
+            refs.status.textContent = "平手";
           }
           playSound("success");
         };
@@ -1340,7 +1340,7 @@
               p2 = 0;
               render();
               refs.timer.textContent = "8.0";
-              refs.status.textContent = "冲刺中...";
+              refs.status.textContent = "衝刺中...";
               refs.p1Target.disabled = false;
               refs.p2Target.disabled = false;
               startAt = performance.now();
@@ -1391,7 +1391,7 @@
             refs.p1Target.disabled = true;
             refs.p2Target.disabled = true;
             render();
-            refs.status.textContent = "点击开始后计时。";
+            refs.status.textContent = "點按開始後計時。";
           },
           getState() {
             return { running, p1, p2 };
@@ -1442,7 +1442,7 @@
           const w = winner();
           if (w) {
             active = false;
-            refs.status.textContent = w === "X" ? "P1(X) 获胜" : "P2(O) 获胜";
+            refs.status.textContent = w === "X" ? "P1(X) 獲勝" : "P2(O) 獲勝";
             playSound("success");
             render();
             return;
@@ -1450,14 +1450,14 @@
 
           if (board.every((cell) => cell !== "")) {
             active = false;
-            refs.status.textContent = "平局";
+            refs.status.textContent = "平手";
             playSound("fail");
             render();
             return;
           }
 
           turn = turn === "X" ? "O" : "X";
-          refs.status.textContent = "继续下棋";
+          refs.status.textContent = "繼續落子";
           playSound("click");
           render();
         };
@@ -1505,7 +1505,7 @@
             board = Array(9).fill("");
             turn = "X";
             active = true;
-            refs.status.textContent = "开始对局吧。";
+            refs.status.textContent = "開始對局吧。";
             render();
           },
           getState() {
@@ -1593,7 +1593,7 @@
             return;
           }
           signalActive = false;
-          setPadState("is-waiting", "等待信号...");
+          setPadState("is-waiting", "等待信號...");
           const wait = randomInt(350, 1100);
           signalTimer = setTimeout(() => {
             if (!running) {
@@ -1601,7 +1601,7 @@
             }
             signalActive = true;
             signalAt = performance.now();
-            setPadState("is-live", "现在点！");
+            setPadState("is-live", "立即點按！");
           }, wait);
         };
 
@@ -1623,8 +1623,8 @@
           refs.resultAvg.textContent = avg === null ? "--" : `${avg}ms`;
           refs.result.hidden = false;
           refs.start.disabled = false;
-          setPadState("is-waiting", "本局结束");
-          refs.status.textContent = "时间到，点击"再来一局"。";
+          setPadState("is-waiting", "本局結束");
+          refs.status.textContent = "時間到，點按「再玩一局」。";
           playSound("success");
         };
 
@@ -1651,7 +1651,7 @@
           endAt = performance.now() + 60000;
           refs.start.disabled = true;
           refs.result.hidden = true;
-          refs.status.textContent = "等待信号，亮起后再点。";
+          refs.status.textContent = "等待信號，亮起後再點按。";
           renderStats(60000);
           scheduleSignal();
           ticker = setInterval(tick, 50);
@@ -1670,7 +1670,7 @@
             score = Math.max(0, score + 10);
             reactionTotal += reactionMs;
             reactionCount += 1;
-            refs.status.textContent = `命中！反应 ${reactionMs}ms`;
+            refs.status.textContent = `命中！反應 ${reactionMs}ms`;
             renderStats(Math.max(0, endAt - performance.now()));
             playSound("success");
             scheduleSignal();
@@ -1678,14 +1678,14 @@
           }
           misses += 1;
           score = Math.max(0, score - 3);
-          refs.status.textContent = "过早点击，扣 3 分";
+          refs.status.textContent = "提早點按，扣 3 分";
           setPadState("is-miss", "太早了");
           renderStats(Math.max(0, endAt - performance.now()));
           playSound("fail");
           clearMissFlashTimer();
           missFlashTimer = setTimeout(() => {
             if (running && !signalActive) {
-              setPadState("is-waiting", "等待信号...");
+              setPadState("is-waiting", "等待信號...");
             }
           }, 180);
         };
@@ -1735,8 +1735,8 @@
             reactionCount = 0;
             refs.start.disabled = false;
             refs.result.hidden = true;
-            refs.status.textContent = "准备开始。";
-            setPadState("is-waiting", "点击开始后，等待信号");
+            refs.status.textContent = "準備開始。";
+            setPadState("is-waiting", "點按開始後，等待信號");
             renderStats(60000);
           },
           getState() {
@@ -1824,7 +1824,7 @@
           }
           misses += 1;
           score = Math.max(0, score - 2);
-          refs.status.textContent = "漏掉一个气球，扣 2 分";
+          refs.status.textContent = "漏掉一個氣球，扣 2 分";
           renderStats(Math.max(0, endAt - performance.now()));
           playSound("fail");
         };
@@ -1908,7 +1908,7 @@
           refs.resultAvg.textContent = "--";
           refs.result.hidden = false;
           refs.start.disabled = false;
-          refs.status.textContent = "时间到，点击"再来一局"。";
+          refs.status.textContent = "時間到，點按「再玩一局」。";
           playSound("success");
         };
 
@@ -1932,7 +1932,7 @@
           endAt = performance.now() + 60000;
           refs.start.disabled = true;
           refs.result.hidden = true;
-          refs.status.textContent = "瞄准气球快速点击。";
+          refs.status.textContent = "瞄準氣球快速點按。";
           renderStats(60000);
           spawnOne();
           ticker = setInterval(tick, 50);
@@ -1988,7 +1988,7 @@
             misses = 0;
             refs.start.disabled = false;
             refs.result.hidden = true;
-            refs.status.textContent = "准备开始。";
+            refs.status.textContent = "準備開始。";
             renderStats(60000);
           },
           getState() {
@@ -2065,7 +2065,7 @@
             return;
           }
           clearTimer();
-          refs.status.textContent = "完成！共 " + moves + " 步，用时 " + timeSec + "s";
+          refs.status.textContent = "完成！共 " + moves + " 步，用時 " + timeSec + "s";
           playSound("success");
         };
 
@@ -2089,7 +2089,7 @@
           playSound("click");
 
           if (opened.length < 2) {
-            refs.status.textContent = "再翻一张牌";
+            refs.status.textContent = "再翻一張牌";
             return;
           }
 
@@ -2103,7 +2103,7 @@
             second.matched = true;
             opened = [];
             matchedPairs += 1;
-            refs.status.textContent = "匹配成功";
+            refs.status.textContent = "配對成功";
             render();
             playSound("success");
             finishIfDone();
@@ -2111,14 +2111,14 @@
           }
 
           lock = true;
-          refs.status.textContent = "不匹配，稍后翻回...";
+          refs.status.textContent = "不匹配，稍後翻回...";
           playSound("fail");
           setTimeout(() => {
             first.open = false;
             second.open = false;
             opened = [];
             lock = false;
-            refs.status.textContent = "继续寻找配对";
+            refs.status.textContent = "繼續尋找配對";
             render();
           }, 700);
         };
@@ -2181,7 +2181,7 @@
             timeSec = 0;
             matchedPairs = 0;
             started = false;
-            refs.status.textContent = "请选择第一张牌。";
+            refs.status.textContent = "請選擇第一張牌。";
             render();
           },
           getState() {
