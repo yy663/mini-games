@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>插畫小遊戲屋 V2</title>
+  <title>資訊科技週互動區 V2</title>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@400;700&family=Noto+Sans+SC:wght@400;600;700&display=swap");
 
@@ -31,6 +31,12 @@
       --balloon-field-height: clamp(300px, 52vh, 500px);
       --game-shell-padding: 18px;
       --button-min-height: 44px;
+      --tug-track-height: 44px;
+      --tug-knot-size: 40px;
+      --tug-btn-height: 112px;
+      --tug-arena-padding: 16px;
+      --card-illustration-opacity: 0.22;
+      --focus-ring: 0 0 0 3px rgba(77, 124, 254, 0.26);
     }
 
     * {
@@ -90,12 +96,34 @@
     }
 
     .home-shell {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      position: relative;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 8% 6%, rgba(132, 191, 255, 0.16), transparent 34%),
+        linear-gradient(165deg, rgba(255, 255, 255, 0.95), rgba(248, 252, 255, 0.92));
+      border: 1px solid rgba(52, 94, 135, 0.18);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
+      box-shadow:
+        0 10px 24px rgba(98, 127, 158, 0.16),
+        0 24px 48px rgba(79, 110, 143, 0.08);
       padding: 22px;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(7px);
+      overflow: hidden;
+    }
+
+    .home-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.14), transparent 38%),
+        repeating-linear-gradient(
+          -35deg,
+          rgba(77, 124, 254, 0.03) 0 10px,
+          rgba(31, 191, 159, 0.03) 10px 20px
+        );
+      z-index: -1;
     }
 
     .home-header {
@@ -104,7 +132,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .home-title h1 {
@@ -126,6 +154,47 @@
       gap: 8px;
     }
 
+    .school-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(53, 93, 134, 0.2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 251, 255, 0.82));
+      box-shadow: 0 5px 12px rgba(77, 111, 146, 0.09);
+      min-width: min(560px, 100%);
+    }
+
+    .school-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      border: 1px solid rgba(47, 86, 123, 0.25);
+      background: #ffffff;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .school-meta {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .school-meta .zh {
+      font-size: 1.01rem;
+      font-weight: 700;
+      color: #29405f;
+      line-height: 1.2;
+    }
+
+    .school-meta .en {
+      font-size: 0.72rem;
+      color: #4a6078;
+      line-height: 1.2;
+    }
+
     .entry-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(220px, 1fr));
@@ -134,19 +203,63 @@
     }
 
     .entry-card {
+      position: relative;
+      overflow: hidden;
       border: 1px solid rgba(38, 88, 132, 0.15);
       border-radius: var(--radius-md);
-      background: linear-gradient(165deg, rgba(255, 255, 255, 0.92), rgba(245, 250, 255, 0.92));
+      background:
+        radial-gradient(circle at 86% 10%, rgba(255, 255, 255, 0.66), transparent 34%),
+        linear-gradient(165deg, rgba(255, 255, 255, 0.96), rgba(245, 250, 255, 0.92));
       padding: 14px;
       text-align: left;
       cursor: pointer;
       min-height: 155px;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
     }
 
     .entry-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(92, 122, 152, 0.2);
+      box-shadow: 0 14px 24px rgba(92, 122, 152, 0.2);
+      border-color: rgba(62, 106, 150, 0.3);
+    }
+
+    .entry-card:active {
+      transform: translateY(0);
+    }
+
+    .entry-card::after {
+      position: absolute;
+      right: 10px;
+      bottom: 8px;
+      font-size: 2rem;
+      line-height: 1;
+      opacity: var(--card-illustration-opacity);
+      filter: drop-shadow(0 2px 3px rgba(43, 69, 97, 0.16));
+      pointer-events: none;
+    }
+
+    .entry-card[data-scene="speed"]::after {
+      content: "⏱";
+    }
+
+    .entry-card[data-scene="duel"]::after {
+      content: "🏁";
+    }
+
+    .entry-card[data-scene="ttt"]::after {
+      content: "✦";
+    }
+
+    .entry-card[data-scene="react"]::after {
+      content: "⚡";
+    }
+
+    .entry-card[data-scene="balloon"]::after {
+      content: "🎈";
+    }
+
+    .entry-card[data-scene="memory"]::after {
+      content: "🧩";
     }
 
     .entry-card .tag {
@@ -191,12 +304,28 @@
     }
 
     .game-shell {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      position: relative;
+      isolation: isolate;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 252, 255, 0.9)),
+        var(--surface);
+      border: 1px solid rgba(56, 97, 137, 0.2);
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
+      box-shadow:
+        0 10px 24px rgba(97, 127, 157, 0.16),
+        0 20px 40px rgba(79, 109, 141, 0.08);
       padding: var(--game-shell-padding);
       min-height: calc(100vh - 32px);
+      overflow: hidden;
+    }
+
+    .game-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 90% 8%, rgba(108, 177, 255, 0.1), transparent 34%);
+      z-index: -1;
     }
 
     .scene-head {
@@ -206,6 +335,10 @@
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(58, 98, 140, 0.16);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(245, 250, 255, 0.86));
     }
 
     .scene-head h2 {
@@ -237,12 +370,13 @@
     }
 
     .chip {
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(58, 98, 141, 0.16);
-      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(58, 98, 141, 0.2);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 255, 0.9));
       font-size: 0.9rem;
       color: #3f5772;
+      box-shadow: 0 4px 10px rgba(92, 123, 154, 0.08);
     }
 
     .chip strong {
@@ -252,7 +386,7 @@
     button {
       appearance: none;
       border: 1px solid rgba(50, 92, 133, 0.2);
-      background: linear-gradient(180deg, #ffffff, #f2f8ff);
+      background: linear-gradient(180deg, #ffffff, #f1f8ff);
       color: #2b425d;
       border-radius: var(--radius-sm);
       min-height: var(--button-min-height);
@@ -260,12 +394,24 @@
       font: inherit;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.14s ease, box-shadow 0.14s ease;
-      box-shadow: 0 3px 8px rgba(78, 106, 136, 0.12);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      box-shadow:
+        0 4px 10px rgba(78, 106, 136, 0.12),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.8);
     }
 
     button:hover {
       transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 6px rgba(78, 106, 136, 0.18);
+    }
+
+    button:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring), 0 4px 10px rgba(78, 106, 136, 0.14);
     }
 
     button:disabled {
@@ -341,46 +487,318 @@
       animation: speed-ripple 0.32s ease-out forwards;
     }
 
-    .duel-wrap {
+    .school-badge {
+      margin: 10px 0 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(56, 98, 137, 0.18);
+      border-radius: 999px;
+      padding: 4px 10px 4px 4px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(245, 251, 255, 0.8));
+      color: #3a5572;
+      font-size: 0.8rem;
+      box-shadow: 0 4px 10px rgba(84, 114, 145, 0.1);
+    }
+
+    .school-badge-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid rgba(52, 91, 130, 0.2);
+      background: #ffffff;
+      object-fit: cover;
+    }
+
+    .tug-shell {
+      margin-top: 12px;
+      border: 1px solid rgba(56, 97, 134, 0.24);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(158, 210, 255, 0.2), transparent 34%),
+        linear-gradient(170deg, rgba(255, 255, 255, 0.95), rgba(237, 247, 255, 0.9));
+      padding: var(--tug-arena-padding);
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    .tug-arena {
+      border-radius: 14px;
+      border: 1px dashed rgba(70, 109, 149, 0.24);
+      background:
+        repeating-linear-gradient(
+          -25deg,
+          rgba(255, 255, 255, 0.26) 0 10px,
+          rgba(238, 246, 255, 0.26) 10px 20px
+        );
+      padding: clamp(10px, 2.2vw, 16px);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      animation: arena-enter 0.2s ease-out;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .tug-arena[data-state="running"] {
+      border-color: rgba(52, 103, 152, 0.35);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    }
+
+    .tug-arena[data-state="ended"] {
+      border-color: rgba(60, 107, 156, 0.45);
+      box-shadow: 0 10px 18px rgba(93, 123, 154, 0.18);
+    }
+
+    .tug-track {
+      position: relative;
+      height: var(--tug-track-height);
+      border-radius: 999px;
+      border: 1px solid rgba(56, 98, 137, 0.24);
+      background:
+        linear-gradient(90deg, rgba(111, 194, 255, 0.24), rgba(255, 255, 255, 0.9) 50%, rgba(112, 231, 193, 0.26)),
+        #ffffff;
+      overflow: hidden;
+    }
+
+    .tug-rope {
+      position: absolute;
+      left: 3%;
+      right: 3%;
+      top: 50%;
+      height: 8px;
+      border-radius: 999px;
+      transform: translateY(-50%);
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(201, 139, 82, 0.92) 0 10px,
+          rgba(173, 113, 61, 0.92) 10px 20px
+        );
+      box-shadow: inset 0 1px 0 rgba(255, 236, 217, 0.86), 0 2px 6px rgba(148, 95, 55, 0.3);
+      pointer-events: none;
+    }
+
+    .tug-center-flag {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(30px, 4.5vw, 42px);
+      height: clamp(26px, 3.5vw, 34px);
+      border-radius: 8px;
+      border: 1px solid rgba(209, 111, 61, 0.45);
+      background: linear-gradient(180deg, #ffe9d8, #ffc895);
+      box-shadow: 0 3px 8px rgba(196, 113, 74, 0.24);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .tug-center-flag::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -12px;
+      width: 2px;
+      height: 12px;
+      transform: translateX(-50%);
+      background: rgba(195, 107, 73, 0.62);
+    }
+
+    .tug-center-flag::after {
+      content: "中線";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: #a75622;
+      letter-spacing: 0.03em;
+    }
+
+    .tug-lead-glow {
+      position: absolute;
+      inset: 2px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 50%, rgba(84, 180, 255, 0.34), transparent 44%),
+        radial-gradient(circle at 70% 50%, rgba(83, 230, 176, 0.34), transparent 44%);
+      transition: opacity 0.12s ease;
+      pointer-events: none;
+      opacity: 0.48;
+    }
+
+    .tug-arena[data-lead="p1"] .tug-lead-glow {
+      background: radial-gradient(circle at 28% 50%, rgba(84, 180, 255, 0.45), transparent 44%);
+      opacity: 0.72;
+    }
+
+    .tug-arena[data-lead="p2"] .tug-lead-glow {
+      background: radial-gradient(circle at 72% 50%, rgba(65, 218, 164, 0.45), transparent 44%);
+      opacity: 0.72;
+    }
+
+    .tug-knot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: var(--tug-knot-size);
+      height: var(--tug-knot-size);
+      border-radius: 999px;
+      border: 2px solid rgba(211, 111, 62, 0.72);
+      background:
+        radial-gradient(circle at 30% 22%, #fff2e6, #ffd09f 56%, #ffad66);
+      box-shadow:
+        0 7px 14px rgba(208, 109, 65, 0.3),
+        inset 0 -2px 0 rgba(191, 103, 59, 0.35);
+      transition: left 0.06s linear;
+      z-index: 3;
+    }
+
+    .tug-knot.is-impact {
+      animation: rope-pulse 0.3s ease-out;
+    }
+
+    .tug-teams {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 9px;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: #3f5772;
+      font-weight: 700;
+    }
+
+    .tug-team {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(58, 98, 140, 0.18);
+      background: rgba(255, 255, 255, 0.84);
+    }
+
+    .tug-team.p1::before,
+    .tug-team.p2::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+    }
+
+    .tug-team.p1::before {
+      background: #4eaaf9;
+    }
+
+    .tug-team.p2::before {
+      background: #35c992;
+    }
+
+    .tug-controls {
+      margin-top: 10px;
       display: grid;
       grid-template-columns: repeat(2, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
+      gap: 10px;
     }
 
-    .duel-lane {
-      border-radius: var(--radius-md);
-      padding: 12px;
-      border: 1px solid rgba(53, 92, 126, 0.16);
-      background: rgba(255, 255, 255, 0.78);
-      display: grid;
-      gap: 8px;
-      justify-items: center;
+    .tug-btn {
+      position: relative;
+      min-height: var(--tug-btn-height);
+      border-radius: 18px;
+      border: 1px solid rgba(52, 93, 133, 0.24);
+      font-size: clamp(1rem, 2.2vw, 1.14rem);
+      font-weight: 700;
+      overflow: hidden;
     }
 
-    .duel-lane h3 {
+    .tug-btn::before {
+      position: absolute;
+      inset: auto 10px 8px auto;
+      font-size: 1.3rem;
+      opacity: 0.24;
+      pointer-events: none;
+    }
+
+    .tug-btn.p1::before {
+      content: "◀";
+    }
+
+    .tug-btn.p2::before {
+      content: "▶";
+    }
+
+    .tug-btn.is-pressed {
+      animation: button-press 0.3s ease-out;
+    }
+
+    .tug-btn.p1 {
+      background:
+        radial-gradient(circle at 26% 20%, rgba(223, 244, 255, 0.88), transparent 38%),
+        radial-gradient(circle at 30% 28%, #bfe7ff, #7dc5ff 58%, #56afff);
+      color: #103b66;
+    }
+
+    .tug-btn.p2 {
+      background:
+        radial-gradient(circle at 26% 20%, rgba(224, 255, 243, 0.88), transparent 38%),
+        radial-gradient(circle at 30% 28%, #c8ffe7, #89f0c4 58%, #54dbab);
+      color: #0b6148;
+    }
+
+    .leaderboard {
+      margin-top: 14px;
+      border: 1px solid rgba(55, 98, 139, 0.24);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(244, 250, 255, 0.82));
+      box-shadow: 0 6px 14px rgba(82, 114, 146, 0.08);
+      overflow: hidden;
+    }
+
+    .leaderboard > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #375372;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .leaderboard > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .leaderboard > summary::after {
+      content: "▾";
+      font-size: 0.9rem;
+      color: #5a7390;
+      transition: transform 0.15s ease;
+    }
+
+    .leaderboard[open] > summary::after {
+      transform: rotate(180deg);
+    }
+
+    .leaderboard > ol.rank-list {
+      padding: 0 12px 11px 28px;
+    }
+
+    .rank-list {
       margin: 0;
-      color: #304867;
-      font-size: 1.05rem;
+      padding-left: 18px;
+      color: #3e5772;
+      font-size: 0.86rem;
+      display: grid;
+      gap: 6px;
     }
 
-    .duel-target {
-      width: min(145px, 58vw);
-      height: min(145px, 58vw);
-      border-radius: 999px;
-      font-size: 1rem;
-    }
-
-    .duel-target.p1 {
-      background: radial-gradient(circle at 35% 30%, #97d6ff, #5aa8ff);
-      color: #13375f;
-      border-color: rgba(38, 104, 173, 0.35);
-    }
-
-    .duel-target.p2 {
-      background: radial-gradient(circle at 35% 30%, #a6f2d2, #50d9a7);
-      color: #0f5a43;
-      border-color: rgba(23, 127, 93, 0.32);
+    .rank-list li.empty {
+      color: #7b8ca0;
     }
 
     .ttt-board {
@@ -608,6 +1026,41 @@
       }
     }
 
+    @keyframes arena-enter {
+      from {
+        opacity: 0.92;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes rope-pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+      45% {
+        transform: translate(-50%, -50%) scale(1.08);
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    @keyframes button-press {
+      0% {
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(2px) scale(0.985);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+      }
+    }
+
     @media (max-width: 1080px) {
       .entry-grid {
         grid-template-columns: repeat(2, minmax(220px, 1fr));
@@ -632,7 +1085,11 @@
         grid-template-columns: 1fr;
       }
 
-      .duel-wrap {
+      .school-brand {
+        min-width: 100%;
+      }
+
+      .tug-controls {
         grid-template-columns: 1fr;
       }
     }
@@ -655,8 +1112,14 @@
     <div class="home-shell">
       <div class="home-header">
         <div class="home-title">
-          <h1>插畫小遊戲屋</h1>
-          <p>點按卡片進入全屏遊戲頁。每次只玩一款，不再同頁混在一起。</p>
+          <h1>資訊科技週互動區</h1>
+        </div>
+        <div class="school-brand">
+          <img class="school-logo school-logo-img" alt="世界龍岡學校劉皇發中學 校徽">
+          <div class="school-meta">
+            <div class="zh">世界龍岡學校劉皇發中學</div>
+            <div class="en">Lung Kong World Federation School Limited Lau Wong Fat Secondary School</div>
+          </div>
         </div>
         <div class="top-actions">
           <button id="sound-toggle" type="button" class="primary">音效：開</button>
@@ -672,8 +1135,8 @@
         </button>
         <button class="entry-card accent-b" data-scene="duel" type="button">
           <span class="tag">雙人</span>
-          <h3>手速對決</h3>
-          <p>左右分區同屏開點，8 秒決勝。</p>
+          <h3>雙人拔河</h3>
+          <p>30 秒拉鋸對抗，先拉到邊界或到時按位置判勝。</p>
         </button>
         <button class="entry-card accent-c" data-scene="ttt" type="button">
           <span class="tag">雙人</span>
@@ -683,12 +1146,12 @@
         <button class="entry-card accent-b" data-scene="react" type="button">
           <span class="tag">單人</span>
           <h3>反應力閃擊</h3>
-          <p>60 秒持續模式，亮燈即點，亂點會扣分。</p>
+          <p>30 秒持續模式，亮燈即點，亂點會扣分。</p>
         </button>
         <button class="entry-card accent-a" data-scene="balloon" type="button">
           <span class="tag">單人</span>
           <h3>打氣球</h3>
-          <p>60 秒隨機彈出，快準點按，別漏掉。</p>
+          <p>30 秒隨機彈出，快準點按，別漏掉。</p>
         </button>
         <button class="entry-card accent-c" data-scene="memory" type="button">
           <span class="tag">單人</span>
@@ -697,7 +1160,7 @@
         </button>
       </div>
 
-      <p class="footer-note">說明：本版本不保存成績，只保存音效開關設定。</p>
+      
     </div>
   </section>
 
@@ -717,10 +1180,18 @@
       <div class="control-row">
         <button id="speed-start" type="button" class="primary">開始</button>
       </div>
+      <div class="school-badge">
+        <img class="school-badge-logo school-logo-img" alt="校徽">
+        <span>世界龍岡學校劉皇發中學</span>
+      </div>
       <div id="speed-pad" class="speed-pad" aria-label="手速點按區域">
         <span class="hint">點按任意位置加分</span>
       </div>
       <p class="status" id="speed-status">點按開始後進入計時。</p>
+      <details class="leaderboard">
+        <summary>排行榜 Top3</summary>
+        <ol id="rank-speed" class="rank-list"></ol>
+      </details>
     </div>
   </section>
 
@@ -728,29 +1199,44 @@
     <div class="game-shell">
       <div class="scene-head">
         <button type="button" class="back-btn" data-back-home>回首頁</button>
-        <h2>雙人手速對決</h2>
+        <h2>雙人拔河</h2>
         <button id="duel-reset" type="button" class="ghost">重設</button>
       </div>
-      <p class="scene-desc">點按開始後雙方同時衝刺 8 秒。倒數結束自動判勝負。</p>
+      <p class="scene-desc">30 秒內猛按拉繩，先拉到邊界立即勝；到時按繩結位置判勝。</p>
       <div class="chip-row">
-        <span class="chip">倒數：<strong id="duel-timer">8.0</strong>s</span>
-        <span class="chip">P1：<strong id="duel-p1-score">0</strong></span>
-        <span class="chip">P2：<strong id="duel-p2-score">0</strong></span>
+        <span class="chip">倒數：<strong id="duel-timer">30.0</strong>s</span>
+        <span class="chip">拉鋸位置：<strong id="duel-position">0</strong></span>
       </div>
       <div class="control-row">
-        <button id="duel-start" type="button" class="primary">開始對決</button>
+        <button id="duel-start" type="button" class="primary">開始 30 秒</button>
       </div>
-      <div class="duel-wrap">
-        <div class="duel-lane">
-          <h3>玩家 1</h3>
-          <button id="duel-p1-target" type="button" class="duel-target p1" disabled>P1 點我</button>
-        </div>
-        <div class="duel-lane">
-          <h3>玩家 2</h3>
-          <button id="duel-p2-target" type="button" class="duel-target p2" disabled>P2 點我</button>
+      <div class="school-badge">
+        <img class="school-badge-logo school-logo-img" alt="校徽">
+        <span>世界龍岡學校劉皇發中學</span>
+      </div>
+      <div class="tug-shell">
+        <div id="duel-arena" class="tug-arena" data-state="idle" data-lead="even">
+          <div class="tug-track" aria-label="拔河拉鋸軌道">
+            <div class="tug-lead-glow"></div>
+            <div class="tug-rope"></div>
+            <div class="tug-center-flag"></div>
+            <div id="duel-knot" class="tug-knot"></div>
+          </div>
+          <div class="tug-teams">
+            <span class="tug-team p1">藍隊 P1</span>
+            <span class="tug-team p2">綠隊 P2</span>
+          </div>
+          <div class="tug-controls">
+            <button id="duel-p1-target" type="button" class="tug-btn p1" disabled>P1 拉繩</button>
+            <button id="duel-p2-target" type="button" class="tug-btn p2" disabled>P2 拉繩</button>
+          </div>
         </div>
       </div>
-      <p class="status" id="duel-status">點按開始後計時。</p>
+      <p class="status" id="duel-status">點按開始後拔河。</p>
+      <details class="leaderboard" open>
+        <summary>排行榜 Top3</summary>
+        <ol id="rank-duel" class="rank-list"></ol>
+      </details>
     </div>
   </section>
   <section id="scene-ttt" class="scene" hidden>
@@ -764,8 +1250,16 @@
       <div class="chip-row">
         <span class="chip">當前回合：<strong id="ttt-turn">P1(X)</strong></span>
       </div>
+      <div class="school-badge">
+        <img class="school-badge-logo school-logo-img" alt="校徽">
+        <span>世界龍岡學校劉皇發中學</span>
+      </div>
       <div id="ttt-board" class="ttt-board"></div>
       <p class="status" id="ttt-status">開始對局吧。</p>
+      <details class="leaderboard">
+        <summary>排行榜 Top3</summary>
+        <ol id="rank-ttt" class="rank-list"></ol>
+      </details>
     </div>
   </section>
 
@@ -774,16 +1268,20 @@
       <div class="scene-head">
         <button type="button" class="back-btn" data-back-home>回首頁</button>
         <h2>反應力閃擊</h2>
-        <button id="react-start" type="button" class="primary">開始 60 秒</button>
+        <button id="react-start" type="button" class="primary">開始 30 秒</button>
       </div>
       <p class="scene-desc">信號亮起後立即點按。提早點按算失誤並扣分。</p>
       <div class="chip-row">
-        <span class="chip">倒數：<strong id="react-timer">60.0</strong>s</span>
+        <span class="chip">倒數：<strong id="react-timer">30.0</strong>s</span>
         <span class="chip">得分：<strong id="react-score">0</strong></span>
         <span class="chip">命中：<strong id="react-hits">0</strong></span>
         <span class="chip">失誤：<strong id="react-misses">0</strong></span>
         <span class="chip">命中率：<strong id="react-accuracy">0.0%</strong></span>
         <span class="chip">平均反應：<strong id="react-avg">--</strong>ms</span>
+      </div>
+      <div class="school-badge">
+        <img class="school-badge-logo school-logo-img" alt="校徽">
+        <span>世界龍岡學校劉皇發中學</span>
       </div>
       <div id="react-pad" class="react-pad is-waiting" aria-label="反應力閃擊區域">
         <span id="react-signal-text" class="signal-text">點按開始後，等待信號</span>
@@ -798,6 +1296,10 @@
         <button id="react-replay" type="button" class="primary">再玩一局</button>
       </div>
       <p class="status" id="react-status">準備開始。</p>
+      <details class="leaderboard">
+        <summary>排行榜 Top3</summary>
+        <ol id="rank-react" class="rank-list"></ol>
+      </details>
     </div>
   </section>
 
@@ -806,16 +1308,20 @@
       <div class="scene-head">
         <button type="button" class="back-btn" data-back-home>回首頁</button>
         <h2>打氣球</h2>
-        <button id="balloon-start" type="button" class="primary">開始 60 秒</button>
+        <button id="balloon-start" type="button" class="primary">開始 30 秒</button>
       </div>
-      <p class="scene-desc">60 秒內隨機彈出氣球。點按得分，漏掉會扣分。</p>
+      <p class="scene-desc">30 秒內隨機彈出氣球。點按得分，漏掉會扣分。</p>
       <div class="chip-row">
-        <span class="chip">倒數：<strong id="balloon-timer">60.0</strong>s</span>
+        <span class="chip">倒數：<strong id="balloon-timer">30.0</strong>s</span>
         <span class="chip">得分：<strong id="balloon-score">0</strong></span>
         <span class="chip">命中：<strong id="balloon-hits">0</strong></span>
         <span class="chip">漏掉：<strong id="balloon-misses">0</strong></span>
         <span class="chip">命中率：<strong id="balloon-accuracy">0.0%</strong></span>
         <span class="chip">平均反應：<strong id="balloon-avg">--</strong></span>
+      </div>
+      <div class="school-badge">
+        <img class="school-badge-logo school-logo-img" alt="校徽">
+        <span>世界龍岡學校劉皇發中學</span>
       </div>
       <div id="balloon-field" class="balloon-field" aria-label="打氣球區域"></div>
       <div id="balloon-result" class="result-panel" hidden>
@@ -828,6 +1334,10 @@
         <button id="balloon-replay" type="button" class="primary">再玩一局</button>
       </div>
       <p class="status" id="balloon-status">準備開始。</p>
+      <details class="leaderboard">
+        <summary>排行榜 Top3</summary>
+        <ol id="rank-balloon" class="rank-list"></ol>
+      </details>
     </div>
   </section>
 
@@ -844,8 +1354,16 @@
         <span class="chip">用時：<strong id="memory-time">0</strong>s</span>
         <span class="chip">配對：<strong id="memory-matched">0/12</strong></span>
       </div>
+      <div class="school-badge">
+        <img class="school-badge-logo school-logo-img" alt="校徽">
+        <span>世界龍岡學校劉皇發中學</span>
+      </div>
       <div id="memory-board" class="memory-board"></div>
       <p class="status" id="memory-status">請選擇第一張牌。</p>
+      <details class="leaderboard">
+        <summary>排行榜 Top3</summary>
+        <ol id="rank-memory" class="rank-list"></ol>
+      </details>
     </div>
   </section>
 
@@ -890,6 +1408,175 @@
         } catch (_error) {
           // ignore
         }
+      };
+
+      const SCHOOL_BRAND = {
+        zhName: "世界龍岡學校劉皇發中學",
+        enName: "Lung Kong World Federation School Limited Lau Wong Fat Secondary School"
+      };
+
+      // Inline base64 logo (SVG fallback mark for offline single-file delivery)
+      const SCHOOL_LOGO_DATA_URI = "data:image/png;base64,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";
+
+      const applySchoolLogo = () => {
+        document.querySelectorAll(".school-logo-img").forEach((img) => {
+          img.src = SCHOOL_LOGO_DATA_URI;
+        });
+      };
+
+      const RANKINGS_KEY = "mg_v2_rankings";
+      const RANK_LIMIT = 3;
+      const makeEmptyRankings = () => ({
+        version: 1,
+        speed: [],
+        duel: [],
+        ttt: [],
+        react: [],
+        balloon: [],
+        memory: []
+      });
+
+      const normalizeRankings = (input) => {
+        const base = makeEmptyRankings();
+        if (!input || typeof input !== "object") {
+          return base;
+        }
+        Object.keys(base).forEach((key) => {
+          if (key === "version") {
+            return;
+          }
+          if (Array.isArray(input[key])) {
+            base[key] = input[key].slice(0, RANK_LIMIT);
+          }
+        });
+        return base;
+      };
+
+      const loadRankings = () => {
+        try {
+          const raw = localStorage.getItem(RANKINGS_KEY);
+          if (!raw) {
+            return makeEmptyRankings();
+          }
+          return normalizeRankings(JSON.parse(raw));
+        } catch (_error) {
+          return makeEmptyRankings();
+        }
+      };
+
+      let rankings = loadRankings();
+      let lastNickname = "";
+
+      const saveRankings = () => {
+        try {
+          localStorage.setItem(RANKINGS_KEY, JSON.stringify(rankings));
+        } catch (_error) {
+          // ignore
+        }
+      };
+
+      const sanitizeNickname = (name) => {
+        if (typeof name !== "string") {
+          return "";
+        }
+        const trimmed = name.trim().replace(/\s+/g, " ");
+        return Array.from(trimmed).slice(0, 12).join("");
+      };
+
+      const promptNickname = (hint = "請輸入暱稱（2-12字）", defaultName = "") => {
+        const raw = window.prompt(hint, defaultName);
+        if (raw === null) {
+          return "";
+        }
+        const name = sanitizeNickname(raw);
+        if (name.length < 2) {
+          return "";
+        }
+        lastNickname = name;
+        return name;
+      };
+
+      const rankEls = {
+        speed: byId("rank-speed"),
+        duel: byId("rank-duel"),
+        ttt: byId("rank-ttt"),
+        react: byId("rank-react"),
+        balloon: byId("rank-balloon"),
+        memory: byId("rank-memory")
+      };
+
+      const rankLine = (gameId, item) => {
+        if (gameId === "speed") {
+          return `${item.name} - CPS ${Number(item.cps).toFixed(2)} / ${item.clicks}次`;
+        }
+        if (gameId === "duel" || gameId === "ttt") {
+          return `${item.name} - 勝場 ${item.wins}`;
+        }
+        if (gameId === "react") {
+          const avg = item.avgReactionMs >= 999999 ? "--" : `${item.avgReactionMs}ms`;
+          return `${item.name} - 得分 ${item.score} / 命中率 ${Number(item.accuracy).toFixed(1)}% / 平均 ${avg}`;
+        }
+        if (gameId === "balloon") {
+          return `${item.name} - 得分 ${item.score} / 命中率 ${Number(item.accuracy).toFixed(1)}%`;
+        }
+        if (gameId === "memory") {
+          return `${item.name} - 分數 ${item.score} / 用時 ${item.timeSec}s / 步數 ${item.moves}`;
+        }
+        return `${item.name || "匿名"} - ${JSON.stringify(item)}`;
+      };
+
+      const renderLeaderboard = (gameId) => {
+        const listEl = rankEls[gameId];
+        if (!listEl) {
+          return;
+        }
+        const rows = Array.isArray(rankings[gameId]) ? rankings[gameId].slice(0, RANK_LIMIT) : [];
+        listEl.innerHTML = "";
+        if (!rows.length) {
+          const li = document.createElement("li");
+          li.className = "empty";
+          li.textContent = "暫無紀錄";
+          listEl.appendChild(li);
+          return;
+        }
+        rows.forEach((row) => {
+          const li = document.createElement("li");
+          li.textContent = rankLine(gameId, row);
+          listEl.appendChild(li);
+        });
+      };
+
+      const renderAllLeaderboards = () => {
+        Object.keys(rankEls).forEach((key) => renderLeaderboard(key));
+      };
+
+      const recordSingleResult = (gameId, entry, comparator) => {
+        const rows = Array.isArray(rankings[gameId]) ? rankings[gameId].slice() : [];
+        rows.push(entry);
+        rows.sort(comparator);
+        rankings[gameId] = rows.slice(0, RANK_LIMIT);
+        saveRankings();
+        renderLeaderboard(gameId);
+      };
+
+      const recordPvpWin = (gameId, winnerName) => {
+        const name = sanitizeNickname(winnerName);
+        if (name.length < 2) {
+          return;
+        }
+        const now = Date.now();
+        const rows = Array.isArray(rankings[gameId]) ? rankings[gameId].slice() : [];
+        const hit = rows.find((row) => row.name === name);
+        if (hit) {
+          hit.wins = (hit.wins || 0) + 1;
+          hit.lastWinTs = now;
+        } else {
+          rows.push({ name, wins: 1, lastWinTs: now });
+        }
+        rows.sort((a, b) => (b.wins || 0) - (a.wins || 0) || (b.lastWinTs || 0) - (a.lastWinTs || 0));
+        rankings[gameId] = rows.slice(0, RANK_LIMIT);
+        saveRankings();
+        renderLeaderboard(gameId);
       };
 
       const writeAscii = (view, offset, text) => {
@@ -1044,6 +1731,18 @@
           const balloonFieldHeight = isLandscape && width >= 768
             ? clamp(300, Math.round(height * 0.52), 500)
             : clamp(250, Math.round(height * 0.42), 400);
+          const tugTrackHeight = isLandscape && width >= 768
+            ? clamp(42, Math.round(height * 0.065), 56)
+            : clamp(34, Math.round(height * 0.05), 44);
+          const tugKnotSize = isLandscape && width >= 768
+            ? clamp(40, Math.round(height * 0.07), 52)
+            : clamp(34, Math.round(height * 0.056), 44);
+          const tugBtnHeight = isLandscape && width >= 768
+            ? clamp(110, Math.round(height * 0.17), 140)
+            : clamp(84, Math.round(height * 0.13), 108);
+          const tugArenaPadding = isLandscape && width >= 768
+            ? clamp(14, Math.round(width * 0.012), 24)
+            : clamp(10, Math.round(width * 0.02), 16);
 
           const rootStyle = document.documentElement.style;
           rootStyle.setProperty("--board-gap", `${gap}px`);
@@ -1053,6 +1752,10 @@
           rootStyle.setProperty("--balloon-field-height", `${balloonFieldHeight}px`);
           rootStyle.setProperty("--game-shell-padding", `${shellPadding}px`);
           rootStyle.setProperty("--button-min-height", `${buttonMinHeight}px`);
+          rootStyle.setProperty("--tug-track-height", `${tugTrackHeight}px`);
+          rootStyle.setProperty("--tug-knot-size", `${tugKnotSize}px`);
+          rootStyle.setProperty("--tug-btn-height", `${tugBtnHeight}px`);
+          rootStyle.setProperty("--tug-arena-padding", `${tugArenaPadding}px`);
         };
 
         const onResize = () => {
@@ -1144,6 +1847,7 @@
         let startAt = 0;
         let endAt = 0;
         let ticker = null;
+        let recorded = false;
 
         const stopTicker = () => {
           if (ticker) {
@@ -1180,6 +1884,17 @@
           refs.status.textContent = "本局 CPS " + cps.toFixed(2);
           refs.pad.dataset.running = "false";
           playSound("success");
+          if (!recorded) {
+            const name = promptNickname("手速測試結束，請輸入暱稱（2-12字）", lastNickname);
+            if (name) {
+              recordSingleResult(
+                "speed",
+                { name, cps: Number(cps.toFixed(4)), clicks: score, ts: Date.now() },
+                (a, b) => (b.cps - a.cps) || (b.clicks - a.clicks) || (a.ts - b.ts)
+              );
+            }
+            recorded = true;
+          }
         };
 
         const tick = () => {
@@ -1211,6 +1926,7 @@
               }
               running = true;
               score = 0;
+              recorded = false;
               render();
               refs.timer.textContent = "10.0";
               refs.cps.textContent = "0.00";
@@ -1253,6 +1969,7 @@
             stopTicker();
             running = false;
             score = 0;
+            recorded = false;
             refs.timer.textContent = "10.0";
             refs.score.textContent = "0";
             refs.cps.textContent = "0.00";
@@ -1269,14 +1986,18 @@
         };
       }
 
-      function createDuelGame() {
+      function createTugGame() {
+        const ROUND_MS = 30000;
+        const PULL_STEP = 4;
         let refs;
         let running = false;
-        let p1 = 0;
-        let p2 = 0;
-        let startAt = 0;
+        let position = 0;
         let endAt = 0;
         let ticker = null;
+        let finished = false;
+        let knotImpactTimer = null;
+        let p1PressTimer = null;
+        let p2PressTimer = null;
 
         const stopTicker = () => {
           if (ticker) {
@@ -1285,12 +2006,92 @@
           }
         };
 
-        const render = () => {
-          refs.p1.textContent = String(p1);
-          refs.p2.textContent = String(p2);
+        const clearFeedbackTimers = () => {
+          if (knotImpactTimer) {
+            clearTimeout(knotImpactTimer);
+            knotImpactTimer = null;
+          }
+          if (p1PressTimer) {
+            clearTimeout(p1PressTimer);
+            p1PressTimer = null;
+          }
+          if (p2PressTimer) {
+            clearTimeout(p2PressTimer);
+            p2PressTimer = null;
+          }
         };
 
-        const finish = () => {
+        const setArenaState = (state) => {
+          refs.arena.dataset.state = state;
+          if (state !== "running") {
+            refs.arena.dataset.lead = "even";
+          }
+        };
+
+        const updateLead = () => {
+          const lead = position < -8 ? "p1" : position > 8 ? "p2" : "even";
+          refs.arena.dataset.lead = lead;
+          if (running) {
+            refs.status.style.color = lead === "p1"
+              ? "#2e5f9c"
+              : lead === "p2"
+                ? "#1f7c5d"
+                : "#2d4c71";
+          }
+        };
+
+        const updateTrack = () => {
+          refs.position.textContent = String(position);
+          refs.knot.style.setProperty("--tug-shift", String(position));
+          refs.knot.style.left = `${50 + position / 2}%`;
+          updateLead();
+        };
+
+        const triggerKnotImpact = () => {
+          refs.knot.classList.remove("is-impact");
+          void refs.knot.offsetWidth;
+          refs.knot.classList.add("is-impact");
+          if (knotImpactTimer) {
+            clearTimeout(knotImpactTimer);
+          }
+          knotImpactTimer = setTimeout(() => {
+            refs.knot.classList.remove("is-impact");
+          }, 300);
+        };
+
+        const triggerButtonPress = (btn) => {
+          const key = btn === refs.p1Target ? "p1" : "p2";
+          const timerRef = key === "p1" ? p1PressTimer : p2PressTimer;
+          btn.classList.remove("is-pressed");
+          void btn.offsetWidth;
+          btn.classList.add("is-pressed");
+          if (timerRef) {
+            clearTimeout(timerRef);
+          }
+          const nextTimer = setTimeout(() => {
+            btn.classList.remove("is-pressed");
+          }, 300);
+          if (key === "p1") {
+            p1PressTimer = nextTimer;
+          } else {
+            p2PressTimer = nextTimer;
+          }
+        };
+
+        const settleRanking = (winnerCode) => {
+          if (!winnerCode) {
+            return;
+          }
+          const hint = winnerCode === "p1"
+            ? "P1 獲勝！請輸入勝者暱稱（2-12字）"
+            : "P2 獲勝！請輸入勝者暱稱（2-12字）";
+          const name = promptNickname(hint, lastNickname);
+          if (name) {
+            recordPvpWin("duel", name);
+          }
+        };
+
+        const finish = (forceWinner = "") => {
           if (!running) {
             return;
           }
@@ -1298,16 +2099,61 @@
           stopTicker();
           refs.p1Target.disabled = true;
           refs.p2Target.disabled = true;
+          setArenaState("ended");
           refs.timer.textContent = "0.0";
 
-          if (p1 > p2) {
-            refs.status.textContent = "玩家 1 獲勝";
-          } else if (p2 > p1) {
-            refs.status.textContent = "玩家 2 獲勝";
-          } else {
-            refs.status.textContent = "平手";
+          let winner = forceWinner;
+          if (!winner) {
+            if (position < 0) {
+              winner = "p1";
+            } else if (position > 0) {
+              winner = "p2";
+            } else {
+              winner = "";
+            }
           }
-          playSound("success");
+
+          if (winner === "p1") {
+            refs.status.textContent = "藍隊（P1）獲勝";
+            refs.status.style.color = "#2e5f9c";
+            playSound("success");
+            if (!finished) {
+              finished = true;
+              settleRanking(winner);
+            }
+            return;
+          }
+          if (winner === "p2") {
+            refs.status.textContent = "綠隊（P2）獲勝";
+            refs.status.style.color = "#1f7c5d";
+            playSound("success");
+            if (!finished) {
+              finished = true;
+              settleRanking(winner);
+            }
+            return;
+          }
+          refs.status.textContent = "平手（不入榜）";
+          refs.status.style.color = "#5b6f88";
+          playSound("fail");
+          finished = true;
+        };
+
+        const shift = (delta, triggerBtn) => {
+          if (!running) {
+            return;
+          }
+          position = clamp(-100, position + delta, 100);
+          updateTrack();
+          triggerKnotImpact();
+          triggerButtonPress(triggerBtn);
+          if (position <= -100) {
+            finish("p1");
+            return;
+          }
+          if (position >= 100) {
+            finish("p2");
+          }
         };
 
         const tick = () => {
@@ -1325,9 +2171,10 @@
               reset: rootEl.querySelector("#duel-reset"),
               p1Target: rootEl.querySelector("#duel-p1-target"),
               p2Target: rootEl.querySelector("#duel-p2-target"),
+              arena: rootEl.querySelector("#duel-arena"),
               timer: rootEl.querySelector("#duel-timer"),
-              p1: rootEl.querySelector("#duel-p1-score"),
-              p2: rootEl.querySelector("#duel-p2-score"),
+              position: rootEl.querySelector("#duel-position"),
+              knot: rootEl.querySelector("#duel-knot"),
               status: rootEl.querySelector("#duel-status")
             };
 
@@ -1336,15 +2183,16 @@
                 return;
               }
               running = true;
-              p1 = 0;
-              p2 = 0;
-              render();
-              refs.timer.textContent = "8.0";
-              refs.status.textContent = "衝刺中...";
+              finished = false;
+              position = 0;
+              setArenaState("running");
+              updateTrack();
+              refs.timer.textContent = "30.0";
+              refs.status.textContent = "比賽進行中，快拉繩！";
+              refs.status.style.color = "#2d4c71";
               refs.p1Target.disabled = false;
               refs.p2Target.disabled = false;
-              startAt = performance.now();
-              endAt = startAt + 8000;
+              endAt = performance.now() + ROUND_MS;
               stopTicker();
               ticker = setInterval(tick, 50);
               playSound("click");
@@ -1357,20 +2205,12 @@
 
             refs.p1Target.addEventListener("pointerdown", (event) => {
               event.preventDefault();
-              if (!running) {
-                return;
-              }
-              p1 += 1;
-              refs.p1.textContent = String(p1);
+              shift(-PULL_STEP, refs.p1Target);
             });
 
             refs.p2Target.addEventListener("pointerdown", (event) => {
               event.preventDefault();
-              if (!running) {
-                return;
-              }
-              p2 += 1;
-              refs.p2.textContent = String(p2);
+              shift(PULL_STEP, refs.p2Target);
             });
 
             this.reset();
@@ -1378,26 +2218,35 @@
           enter() {},
           exit() {
             stopTicker();
+            clearFeedbackTimers();
             running = false;
             refs.p1Target.disabled = true;
             refs.p2Target.disabled = true;
+            setArenaState("idle");
           },
           reset() {
             stopTicker();
+            clearFeedbackTimers();
             running = false;
-            p1 = 0;
-            p2 = 0;
-            refs.timer.textContent = "8.0";
+            finished = false;
+            position = 0;
+            refs.timer.textContent = "30.0";
             refs.p1Target.disabled = true;
             refs.p2Target.disabled = true;
-            render();
-            refs.status.textContent = "點按開始後計時。";
+            refs.status.textContent = "點按開始後拔河。";
+            refs.status.style.color = "#415b78";
+            refs.p1Target.classList.remove("is-pressed");
+            refs.p2Target.classList.remove("is-pressed");
+            refs.knot.classList.remove("is-impact");
+            setArenaState("idle");
+            updateTrack();
           },
           getState() {
-            return { running, p1, p2 };
+            return { running, position };
           },
           destroy() {
             stopTicker();
+            clearFeedbackTimers();
           }
         };
       }
@@ -1407,6 +2256,7 @@
         let board = Array(9).fill("");
         let turn = "X";
         let active = true;
+        let recorded = false;
 
         const lines = [
           [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -1444,6 +2294,16 @@
             active = false;
             refs.status.textContent = w === "X" ? "P1(X) 獲勝" : "P2(O) 獲勝";
             playSound("success");
+            if (!recorded) {
+              const hint = w === "X"
+                ? "P1(X) 獲勝，請輸入勝者暱稱（2-12字）"
+                : "P2(O) 獲勝，請輸入勝者暱稱（2-12字）";
+              const name = promptNickname(hint, lastNickname);
+              if (name) {
+                recordPvpWin("ttt", name);
+              }
+              recorded = true;
+            }
             render();
             return;
           }
@@ -1505,6 +2365,7 @@
             board = Array(9).fill("");
             turn = "X";
             active = true;
+            recorded = false;
             refs.status.textContent = "開始對局吧。";
             render();
           },
@@ -1515,6 +2376,7 @@
         };
       }
       function createReactionRushGame() {
+        const ROUND_MS = 30000;
         let refs;
         let running = false;
         let score = 0;
@@ -1528,6 +2390,7 @@
         let missFlashTimer = null;
         let signalActive = false;
         let signalAt = 0;
+        let recorded = false;
 
         const clearTicker = () => {
           if (ticker) {
@@ -1577,7 +2440,7 @@
           refs.signalText.textContent = text;
         };
 
-        const renderStats = (remainMs = 60000) => {
+        const renderStats = (remainMs = ROUND_MS) => {
           refs.timer.textContent = (Math.max(0, remainMs) / 1000).toFixed(1);
           refs.score.textContent = String(score);
           refs.hits.textContent = String(hits);
@@ -1626,6 +2489,27 @@
           setPadState("is-waiting", "本局結束");
           refs.status.textContent = "時間到，點按「再玩一局」。";
           playSound("success");
+          if (!recorded) {
+            const name = promptNickname("反應力閃擊結束，請輸入暱稱（2-12字）", lastNickname);
+            if (name) {
+              recordSingleResult(
+                "react",
+                {
+                  name,
+                  score,
+                  accuracy: Number(accuracy().toFixed(2)),
+                  avgReactionMs: avg === null ? 999999 : avg,
+                  ts: Date.now()
+                },
+                (a, b) =>
+                  (b.score - a.score) ||
+                  (b.accuracy - a.accuracy) ||
+                  (a.avgReactionMs - b.avgReactionMs) ||
+                  (a.ts - b.ts)
+              );
+            }
+            recorded = true;
+          }
         };
 
         const tick = () => {
@@ -1648,11 +2532,12 @@
           misses = 0;
           reactionTotal = 0;
           reactionCount = 0;
-          endAt = performance.now() + 60000;
+          recorded = false;
+          endAt = performance.now() + ROUND_MS;
           refs.start.disabled = true;
           refs.result.hidden = true;
           refs.status.textContent = "等待信號，亮起後再點按。";
-          renderStats(60000);
+          renderStats(ROUND_MS);
           scheduleSignal();
           ticker = setInterval(tick, 50);
           playSound("click");
@@ -1733,11 +2618,12 @@
             misses = 0;
             reactionTotal = 0;
             reactionCount = 0;
+            recorded = false;
             refs.start.disabled = false;
             refs.result.hidden = true;
             refs.status.textContent = "準備開始。";
             setPadState("is-waiting", "點按開始後，等待信號");
-            renderStats(60000);
+            renderStats(ROUND_MS);
           },
           getState() {
             return { running, score, hits, misses, avgReactionMs: averageReaction() };
@@ -1749,6 +2635,7 @@
       }
 
       function createBalloonPopGame() {
+        const ROUND_MS = 30000;
         let refs;
         let running = false;
         let score = 0;
@@ -1759,6 +2646,7 @@
         let spawnTimer = null;
         let idSeed = 0;
         const balloons = new Map();
+        let recorded = false;
 
         const clearTicker = () => {
           if (ticker) {
@@ -1797,7 +2685,7 @@
           return (hits / total) * 100;
         };
 
-        const renderStats = (remainMs = 60000) => {
+        const renderStats = (remainMs = ROUND_MS) => {
           refs.timer.textContent = (Math.max(0, remainMs) / 1000).toFixed(1);
           refs.score.textContent = String(score);
           refs.hits.textContent = String(hits);
@@ -1910,6 +2798,17 @@
           refs.start.disabled = false;
           refs.status.textContent = "時間到，點按「再玩一局」。";
           playSound("success");
+          if (!recorded) {
+            const name = promptNickname("打氣球結束，請輸入暱稱（2-12字）", lastNickname);
+            if (name) {
+              recordSingleResult(
+                "balloon",
+                { name, score, accuracy: Number(accuracy().toFixed(2)), ts: Date.now() },
+                (a, b) => (b.score - a.score) || (b.accuracy - a.accuracy) || (a.ts - b.ts)
+              );
+            }
+            recorded = true;
+          }
         };
 
         const tick = () => {
@@ -1929,11 +2828,12 @@
           score = 0;
           hits = 0;
           misses = 0;
-          endAt = performance.now() + 60000;
+          recorded = false;
+          endAt = performance.now() + ROUND_MS;
           refs.start.disabled = true;
           refs.result.hidden = true;
           refs.status.textContent = "瞄準氣球快速點按。";
-          renderStats(60000);
+          renderStats(ROUND_MS);
           spawnOne();
           ticker = setInterval(tick, 50);
           playSound("click");
@@ -1986,10 +2886,11 @@
             score = 0;
             hits = 0;
             misses = 0;
+            recorded = false;
             refs.start.disabled = false;
             refs.result.hidden = true;
             refs.status.textContent = "準備開始。";
-            renderStats(60000);
+            renderStats(ROUND_MS);
           },
           getState() {
             return { running, score, hitCount: hits, missCount: misses, accuracy: accuracy() };
@@ -2014,6 +2915,7 @@
         let matchedPairs = 0;
         let timer = null;
         let started = false;
+        let completed = false;
 
         const clearTimer = () => {
           if (timer) {
@@ -2061,12 +2963,23 @@
         };
 
         const finishIfDone = () => {
-          if (matchedPairs < 12) {
+          if (matchedPairs < 12 || completed) {
             return;
           }
+          completed = true;
           clearTimer();
           refs.status.textContent = "完成！共 " + moves + " 步，用時 " + timeSec + "s";
           playSound("success");
+          const name = promptNickname("記憶對對碰通關，請輸入暱稱（2-12字）", lastNickname);
+          if (name) {
+            const base = Math.max(1, timeSec * 10 + moves);
+            const score = Math.floor(100000 / base);
+            recordSingleResult(
+              "memory",
+              { name, score, timeSec, moves, ts: Date.now() },
+              (a, b) => (b.score - a.score) || (a.timeSec - b.timeSec) || (a.moves - b.moves) || (a.ts - b.ts)
+            );
+          }
         };
 
         const flip = (idx) => {
@@ -2181,6 +3094,7 @@
             timeSec = 0;
             matchedPairs = 0;
             started = false;
+            completed = false;
             refs.status.textContent = "請選擇第一張牌。";
             render();
           },
@@ -2194,7 +3108,7 @@
       }
 
       modules.speed = createSpeedGame();
-      modules.duel = createDuelGame();
+      modules.duel = createTugGame();
       modules.ttt = createTttGame();
       modules.react = createReactionRushGame();
       modules.balloon = createBalloonPopGame();
@@ -2207,6 +3121,8 @@
       modules.balloon.init(sceneEls.balloon);
       modules.memory.init(sceneEls.memory);
 
+      applySchoolLogo();
+      renderAllLeaderboards();
       ResponsiveLayout.init();
       SceneRouter.init();
     })();
